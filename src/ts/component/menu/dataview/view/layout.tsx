@@ -161,6 +161,7 @@ const MenuViewLayout = observer(class MenuViewLayout extends React.Component<I.M
 		const isBoard = this.param.type == I.ViewType.Board;
 		const isCalendar = this.param.type == I.ViewType.Calendar;
 		const clearGroups = isBoard && this.param.groupRelationKey && (view.groupRelationKey != this.param.groupRelationKey);
+		const subGroupChanged = isBoard && (view.subGroupRelationKey != this.param.subGroupRelationKey);
 
 		if (isBoard || isCalendar) {
 			const groupOptions = Relation.getGroupOptions(rootId, blockId, this.param.type);
@@ -178,9 +179,14 @@ const MenuViewLayout = observer(class MenuViewLayout extends React.Component<I.M
 			if (clearGroups) {
 				Dataview.groupUpdate(rootId, blockId, view.id, []);
 				C.BlockDataviewGroupOrderUpdate(rootId, blockId, { viewId: view.id, groups: [] }, onSave);
-			} else 
+			} else
 			if (onSave) {
 				onSave();
+			};
+
+			// Trigger data reload when sub-group relation changes
+			if (subGroupChanged) {
+				$(window).trigger('updateDataviewData');
 			};
 		});
 
@@ -191,7 +197,7 @@ const MenuViewLayout = observer(class MenuViewLayout extends React.Component<I.M
 		const { param } = this.props;
 		const { data } = param;
 		const { rootId, blockId, isInline } = data;
-		const { type, coverRelationKey, cardSize, coverFit, groupRelationKey, endRelationKey, groupBackgroundColors, hideIcon, pageLimit } = this.param;
+		const { type, coverRelationKey, cardSize, coverFit, groupRelationKey, subGroupRelationKey, endRelationKey, groupBackgroundColors, hideIcon, pageLimit } = this.param;
 		const isGallery = type == I.ViewType.Gallery;
 		const isBoard = type == I.ViewType.Board;
 		const isCalendar = type == I.ViewType.Calendar;
@@ -247,10 +253,19 @@ const MenuViewLayout = observer(class MenuViewLayout extends React.Component<I.M
 		};
 
 		if (isBoard) {
-			settings.push({ 
-				id: 'groupBackgroundColors', 
-				name: translate('menuDataviewViewEditColorColumns'), 
-				withSwitch: true, 
+			const subGroupOption = Relation.getSubGroupOption(rootId, blockId, type, subGroupRelationKey, groupRelationKey);
+
+			settings.push({
+				id: 'subGroupRelationKey',
+				name: translate('menuDataviewViewEditSubGroupBy'),
+				caption: subGroupOption ? subGroupOption.name : translate('commonNone'),
+				arrow: true,
+			});
+
+			settings.push({
+				id: 'groupBackgroundColors',
+				name: translate('menuDataviewViewEditColorColumns'),
+				withSwitch: true,
 				switchValue: groupBackgroundColors,
 				onSwitch: (e: any, v: boolean) => { this.onSwitch(e, 'groupBackgroundColors', v); }
 			});
@@ -308,6 +323,29 @@ const MenuViewLayout = observer(class MenuViewLayout extends React.Component<I.M
 		const { type } = this.param;
 
 		let options = Relation.getGroupOptions(rootId, blockId, type);
+
+		if (canWrite) {
+			options = options.concat([
+				{ isDiv: true },
+				{ id: 'addRelation', icon: 'plus', name: translate('commonAddRelation') },
+			]);
+		};
+
+		return options;
+	};
+
+	getSubGroupOptions () {
+		const { param } = this.props;
+		const { data } = param;
+		const { rootId, blockId } = data;
+		const canWrite = U.Space.canMyParticipantWrite();
+		const { type, groupRelationKey } = this.param;
+
+		let options: any[] = [
+			{ id: '', icon: '', name: translate('commonNone') },
+		];
+
+		options = options.concat(Relation.getSubGroupOptions(rootId, blockId, type, groupRelationKey));
 
 		if (canWrite) {
 			options = options.concat([
@@ -384,6 +422,15 @@ const MenuViewLayout = observer(class MenuViewLayout extends React.Component<I.M
 				menuParam.data = Object.assign(menuParam.data, {
 					value: Relation.getGroupOption(rootId, blockId, type, groupRelationKey)?.id,
 					options: groupOptions,
+				});
+				break;
+			};
+
+			case 'subGroupRelationKey': {
+				menuId = 'select';
+				menuParam.data = Object.assign(menuParam.data, {
+					value: this.param.subGroupRelationKey || '',
+					options: this.getSubGroupOptions(),
 				});
 				break;
 			};

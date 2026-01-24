@@ -332,7 +332,7 @@ export const Mapper = {
 		},
 
 		ViewFields: (obj: any): any => {
-			return {
+			const fields: any = {
 				type: obj.getType(),
 				name: obj.getName(),
 				coverRelationKey: obj.getCoverrelationkey(),
@@ -346,6 +346,16 @@ export const Mapper = {
 				defaultTemplateId: obj.getDefaulttemplateid(),
 				defaultTypeId: obj.getDefaultobjecttypeid(),
 			};
+
+			// Only include subGroupRelationKey if backend supports it (has the getter method and returns a value)
+			if (obj.getSubgrouprelationkey) {
+				const subGroupRelationKey = obj.getSubgrouprelationkey();
+				if (subGroupRelationKey) {
+					fields.subGroupRelationKey = subGroupRelationKey;
+				};
+			};
+
+			return fields;
 		},
 
 		ViewRelation: (obj: Model.Block.Content.Dataview.Relation) => {
@@ -1009,6 +1019,9 @@ export const Mapper = {
 			item.setType(obj.type as any);
 			item.setCoverrelationkey(obj.coverRelationKey);
 			item.setGrouprelationkey(obj.groupRelationKey);
+			if ((item as any).setSubgrouprelationkey) {
+				(item as any).setSubgrouprelationkey(obj.subGroupRelationKey);
+			};
 			item.setEndrelationkey(obj.endRelationKey);
 			item.setGroupbackgroundcolors(obj.groupBackgroundColors);
 			item.setCoverfit(obj.coverFit);

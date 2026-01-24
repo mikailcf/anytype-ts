@@ -215,6 +215,7 @@ export interface View {
 	type: ViewType;
 	coverRelationKey: string;
 	groupRelationKey: string;
+	subGroupRelationKey: string;
 	endRelationKey: string;
 	groupBackgroundColors: boolean;
 	coverFit: boolean;

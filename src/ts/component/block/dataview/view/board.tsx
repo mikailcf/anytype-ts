@@ -3,19 +3,25 @@ import { observer } from 'mobx-react';
 import { arrayMove } from '@dnd-kit/sortable';
 import $ from 'jquery';
 import raf from 'raf';
-import { I, C, S, U, J, Dataview, keyboard, translate } from 'Lib';
+import { I, C, S, U, J, Dataview, keyboard, translate, Relation } from 'Lib';
 import Empty from '../empty';
 import Column from './board/column';
+import Swimlane from './board/swimlane';
 
 const PADDING = 46;
 
-const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewComponent> {
+interface State {
+	subGroups: any[];
+};
+
+const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewComponent, State> {
 
 	node: any = null;
 	cache: any = {};
 	frame = 0;
 	newIndex = -1;
 	newGroupId = '';
+	newSubGroupId = '';
 	columnRefs: any = {};
 	isDraggingColumn = false;
 	isDraggingCard = false;
@@ -23,19 +29,31 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 	creating = false;
 	hoverId = '';
 
+	state = {
+		subGroups: [],
+	};
+
 	constructor (props: I.ViewComponent) {
 		super(props);
 
 		this.onDragStartColumn = this.onDragStartColumn.bind(this);
 		this.onDragStartCard = this.onDragStartCard.bind(this);
+		this.getSubIdWithSubGroup = this.getSubIdWithSubGroup.bind(this);
 	};
 
 	render () {
 		const { rootId, block, getView, className, onViewSettings } = this.props;
+		const { subGroups } = this.state;
 		const view = getView();
 		const groups = this.getGroups(false);
 		const relation = S.Record.getRelationByKey(view.groupRelationKey);
+		const subGroupRelation = view.subGroupRelationKey ? S.Record.getRelationByKey(view.subGroupRelationKey) : null;
+		const hasSubGroups = subGroupRelation && subGroups.length > 0;
 		const cn = [ 'viewContent', className ];
+
+		if (hasSubGroups) {
+			cn.push('withSwimlanes');
+		};
 
 		if (!relation) {
 			return (
@@ -51,26 +69,44 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 		};
 
 		return (
-			<div 
-				ref={node => this.node = node} 
+			<div
+				ref={node => this.node = node}
 				id="scrollWrap"
 				className="scrollWrap"
 			>
 				<div id="scroll" className="scroll">
 					<div className={cn.join(' ')}>
-						<div id="columns" className="columns">
-							{groups.map((group: any, i: number) => (
-								<Column 
-									key={`board-column-${group.id}`} 
-									ref={ref => this.columnRefs[group.id] = ref}
-									{...this.props} 
-									{...group}
-									onDragStartColumn={this.onDragStartColumn}
-									onDragStartCard={this.onDragStartCard}
-									getSubId={() => this.getSubId(group.id)}
-								/>
-							))}
-						</div>
+						{hasSubGroups ? (
+							<div id="swimlanes" className="swimlanes">
+								{subGroups.map((subGroup: any, i: number) => (
+									<Swimlane
+										key={`board-swimlane-${subGroup.id}`}
+										{...this.props}
+										subGroupId={subGroup.id}
+										subGroupValue={subGroup.value}
+										groups={groups}
+										columnRefs={this.columnRefs}
+										onDragStartColumn={this.onDragStartColumn}
+										onDragStartCard={this.onDragStartCard}
+										getSubIdForSwimlane={this.getSubIdWithSubGroup}
+									/>
+								))}
+							</div>
+						) : (
+							<div id="columns" className="columns">
+								{groups.map((group: any, i: number) => (
+									<Column
+										key={`board-column-${group.id}`}
+										ref={ref => this.columnRefs[group.id] = ref}
+										{...this.props}
+										{...group}
+										onDragStartColumn={this.onDragStartColumn}
+										onDragStartCard={this.onDragStartCard}
+										getSubId={() => this.getSubId(group.id)}
+									/>
+								))}
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
@@ -123,6 +159,60 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 		};
 
 		Dataview.loadGroupList(rootId, block.id, view.id, object);
+
+		// Load sub-groups if sub-group relation is set
+		if (view.subGroupRelationKey) {
+			this.loadSubGroupList();
+		} else {
+			this.setState({ subGroups: [] });
+		};
+	};
+
+	loadSubGroupList () {
+		const { rootId, block, getView, getTarget } = this.props;
+		const object = getTarget();
+		const view = getView();
+
+		if (!view.subGroupRelationKey) {
+			this.setState({ subGroups: [] });
+			return;
+		};
+
+		const relation = S.Record.getRelationByKey(view.subGroupRelationKey);
+		if (!relation) {
+			this.setState({ subGroups: [] });
+			return;
+		};
+
+		const subId = S.Record.getGroupSubId(rootId, block.id, 'subgroups');
+		const isCollection = U.Object.isCollectionLayout(object.layout);
+
+		C.ObjectGroupsSubscribe(S.Common.space, subId, view.subGroupRelationKey, view.filters.map(Dataview.filterMapper), object.setOf || [], isCollection ? object.id : '', (message: any) => {
+			if (message.error.code) {
+				return;
+			};
+
+			const subGroups = (message.groups || []).map((it: any) => {
+				let value: any = it.value;
+
+				switch (relation.format) {
+					case I.RelationType.MultiSelect:
+						value = Relation.getArrayValue(value);
+						break;
+
+					case I.RelationType.Object:
+						value = Relation.getArrayValue(value);
+						break;
+				};
+
+				return {
+					id: it.id,
+					value: it.value,
+				};
+			});
+
+			this.setState({ subGroups });
+		});
 	};
 
 	getGroups (withHidden: boolean) {
@@ -507,6 +597,12 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 		const { rootId, block } = this.props;
 
 		return S.Record.getGroupSubId(rootId, block.id, id);
+	};
+
+	getSubIdWithSubGroup (groupId: string, subGroupId: string): string {
+		const { rootId, block } = this.props;
+
+		return S.Record.getGroupSubId(rootId, block.id, `${groupId}-${subGroupId}`);
 	};
 
 	resize () {

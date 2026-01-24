@@ -1767,6 +1767,7 @@
 	"menuDataviewViewEditCardSize": "Card size",
 	"menuDataviewViewEditFitMedia": "Fit media",
 	"menuDataviewViewEditGroupBy": "Group by",
+	"menuDataviewViewEditSubGroupBy": "Sub-group by",
 	"menuDataviewViewEditDate": "Date Property",
 	"menuDataviewViewEditStartDate": "Start date",
 	"menuDataviewViewEditEndDate": "End date",

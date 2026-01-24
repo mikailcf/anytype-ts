@@ -679,7 +679,12 @@ class Dataview {
 	viewUpdate (rootId: string, blockId: string, viewId: string, param: Partial<I.View>, callBack?: (message: any) => void) {
 		const view = U.Common.objectCopy(S.Record.getView(rootId, blockId, viewId));
 		if (view && view.id) {
-			C.BlockDataviewViewUpdate(rootId, blockId, view.id, Object.assign(view, param), callBack);
+			const updatedView = Object.assign(view, param);
+
+			// Update local store immediately for frontend-only fields like subGroupRelationKey
+			S.Record.viewUpdate(rootId, blockId, updatedView);
+
+			C.BlockDataviewViewUpdate(rootId, blockId, view.id, updatedView, callBack);
 		};
 	};
 

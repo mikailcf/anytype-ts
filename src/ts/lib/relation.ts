@@ -590,6 +590,26 @@ class Relation {
 	};
 
 	/**
+	 * Gets sub-group types for a view type (swimlanes/vertical grouping).
+	 * Uses the same types as primary grouping since the backend's ObjectGroupsSubscribe
+	 * only supports Select, MultiSelect, and Checkbox relation formats.
+	 * @param {I.ViewType} type - The view type.
+	 * @returns {RelationType[]} The relation types allowed for sub-grouping.
+	 */
+	public getSubGroupTypes (type: I.ViewType): I.RelationType[] {
+		let types: I.RelationType[] = [];
+
+		switch (type) {
+			case I.ViewType.Board: {
+				types = [ I.RelationType.Select, I.RelationType.MultiSelect, I.RelationType.Checkbox ];
+				break;
+			};
+		};
+
+		return types;
+	};
+
+	/**
 	 * Gets group options for a dataview.
 	 * @param {string} rootId - The root object ID.
 	 * @param {string} blockId - The block ID.
@@ -635,6 +655,62 @@ class Relation {
 		const groupOptions = this.getGroupOptions(rootId, blockId, type);
 
 		return groupOptions.length ? (groupOptions.find(it => it.id == relationKey) || groupOptions[0]) : null;
+	};
+
+	/**
+	 * Gets sub-group options for a dataview (swimlanes/vertical grouping).
+	 * @param {string} rootId - The root object ID.
+	 * @param {string} blockId - The block ID.
+	 * @param {I.ViewType} type - The view type.
+	 * @param {string} groupRelationKey - The primary group relation key to exclude.
+	 * @returns {any[]} The sub-group options.
+	 */
+	public getSubGroupOptions (rootId: string, blockId: string, type: I.ViewType, groupRelationKey?: string): any[] {
+		const types = this.getSubGroupTypes(type);
+		const setOf = this.getSetOfObjects(rootId, rootId, I.ObjectLayout.Relation);
+		const options: any[] = setOf.concat(S.Record.getDataviewRelations(rootId, blockId)).filter(it => {
+			if (it.isHidden) return false;
+			if (!types.includes(it.format)) return false;
+			if (groupRelationKey && it.relationKey == groupRelationKey) return false;
+			return true;
+		});
+
+		options.sort((c1: any, c2: any) => {
+			const f1 = c1.format;
+			const f2 = c2.format;
+
+			if ((f1 == I.RelationType.Object) && (f2 != I.RelationType.Object)) return -1;
+			if ((f1 != I.RelationType.Object) && (f2 == I.RelationType.Object)) return 1;
+
+			if ((f1 == I.RelationType.Select) && (f2 != I.RelationType.Select)) return -1;
+			if ((f1 != I.RelationType.Select) && (f2 == I.RelationType.Select)) return 1;
+
+			if ((f1 == I.RelationType.MultiSelect) && (f2 != I.RelationType.MultiSelect)) return -1;
+			if ((f1 != I.RelationType.MultiSelect) && (f2 == I.RelationType.MultiSelect)) return 1;
+
+			return 0;
+		});
+
+		return U.Common.arrayUniqueObjects(options, 'relationKey').map(it => ({
+			id: it.relationKey,
+			icon: 'relation ' + this.className(it.format),
+			name: it.name,
+		}));
+	};
+
+	/**
+	 * Gets the sub-group option for a dataview by relation key.
+	 * @param {string} rootId - The root object ID.
+	 * @param {string} blockId - The block ID.
+	 * @param {I.ViewType} type - The view type.
+	 * @param {string} relationKey - The relation key.
+	 * @param {string} groupRelationKey - The primary group relation key to exclude.
+	 * @returns {any} The sub-group option.
+	 */
+	public getSubGroupOption (rootId: string, blockId: string, type: I.ViewType, relationKey: string, groupRelationKey?: string) {
+		const subGroupOptions = this.getSubGroupOptions(rootId, blockId, type, groupRelationKey);
+
+		return subGroupOptions.find(it => it.id == relationKey) || null;
 	};
 
 	/**

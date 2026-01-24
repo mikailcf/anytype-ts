@@ -8,6 +8,8 @@ import Card from './card';
 interface Props extends I.ViewComponent {
 	id: string;
 	value: any;
+	subGroupId?: string;
+	subGroupValue?: any;
 	onDragStartColumn?: (e: any, groupId: string) => void;
 	onDragStartCard?: (e: any, groupId: string, record: any) => void;
 	getSubId?: () => string;
@@ -138,7 +140,7 @@ const Column = observer(class Column extends React.Component<Props> {
 	};
 
 	load (clear: boolean) {
-		const { id, block, isCollection, value, getView, getKeys, getSubId, applyObjectOrder, getLimit, getTarget, getSearchIds } = this.props;
+		const { id, block, isCollection, value, subGroupId, subGroupValue, getView, getKeys, getSubId, applyObjectOrder, getLimit, getTarget, getSearchIds } = this.props;
 		const object = getTarget();
 		const view = getView();
 		if (!view) {
@@ -160,6 +162,14 @@ const Column = observer(class Column extends React.Component<Props> {
 		].concat(view.filters as any[]);
 		const sorts: I.Sort[] = [].concat(view.sorts);
 		const searchIds = getSearchIds();
+
+		// Add sub-group filter if sub-grouping is enabled
+		if (view.subGroupRelationKey && subGroupId !== undefined && subGroupValue !== undefined) {
+			const subGroupRelation = S.Record.getRelationByKey(view.subGroupRelationKey);
+			if (subGroupRelation) {
+				filters.push(Dataview.getGroupFilter(subGroupRelation, subGroupValue));
+			};
+		};
 
 		if (objectIds.length) {
 			sorts.unshift({ relationKey: 'id', type: I.SortType.Custom, customOrder: objectIds });

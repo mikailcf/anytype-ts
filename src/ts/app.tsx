@@ -250,7 +250,8 @@ const App: FC = () => {
 		if (accountId) {
 			if (isChild) {
 				U.Data.createSession('', '', token, () => {
-					C.AccountSelect(accountId, '', 0, '', (message: any) => {
+					// Offline-only mode: always use Local network mode
+					C.AccountSelect(accountId, '', I.NetworkMode.Local, '', (message: any) => {
 						if (message.error.code) {
 							console.error('[App.onInit]:', message.error.description);
 							return;

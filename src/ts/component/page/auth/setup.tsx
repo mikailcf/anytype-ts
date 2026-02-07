@@ -40,11 +40,10 @@ const PageAuthSetup = observer(forwardRef<{}, I.PageComponent>((props, ref) => {
 	};
 
 	const select = (accountId: string, animate: boolean) => {
-		const { networkConfig } = S.Auth;
 		const { dataPath } = S.Common;
-		const { mode, path } = networkConfig;
 
-		C.AccountSelect(accountId, dataPath, mode, path, (message: any) => {
+		// Offline-only mode: always use Local network mode
+		C.AccountSelect(accountId, dataPath, I.NetworkMode.Local, '', (message: any) => {
 			const { account } = message;
 
 			if (setErrorHandler(message.error) || !account) {

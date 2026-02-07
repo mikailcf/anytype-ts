@@ -978,8 +978,6 @@ class UtilData {
 	accountCreate (onError?: (text: string) => void, callBack?: () => void) {
 		onError = onError || (() => {});
 
-		const { networkConfig } = S.Auth;
-		const { mode, path } = networkConfig;
 		const { dataPath } = S.Common;
 
 		let phrase = '';
@@ -1001,7 +999,8 @@ class UtilData {
 						return;
 					};
 
-					C.AccountCreate('', '', dataPath, U.Common.rand(1, J.Constant.count.icon), mode, path, (message) => {
+					// Offline-only mode: always use Local network mode
+					C.AccountCreate('', '', dataPath, U.Common.rand(1, J.Constant.count.icon), I.NetworkMode.Local, '', (message) => {
 						if (message.error.code) {
 							onError(message.error.description);
 							return;

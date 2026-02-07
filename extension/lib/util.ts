@@ -1,4 +1,4 @@
-import { S, U, J, C, dispatcher } from 'Lib';
+import { I, S, U, J, C, dispatcher } from 'Lib';
 
 const INDEX_POPUP = '/popup/index.html';
 const INDEX_IFRAME = '/iframe/index.html';
@@ -58,7 +58,8 @@ class Util {
 				return;
 			};
 
-			C.AccountSelect(message.accountId, '', 0, '', (message: any) => {
+			// Offline-only mode: always use Local network mode
+			C.AccountSelect(message.accountId, '', I.NetworkMode.Local, '', (message: any) => {
 				if (message.error.code) {
 					if (onError) {
 						onError(message.error);

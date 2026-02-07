@@ -469,9 +469,7 @@ class Action {
 	 * @param {function} onError - Callback for error handling, returns true to abort.
 	 */
 	restoreFromBackup (onError: (error: { code: number, description: string }) => boolean) {
-		const { networkConfig } = S.Auth;
 		const { dataPath } = S.Common;
-		const { mode, path } = networkConfig;
 
 		this.openFileDialog({ extensions: [ 'zip' ] }, paths => {
 			C.AccountRecoverFromLegacyExport(paths[0], dataPath, U.Common.rand(1, J.Constant.count.icon), (message: any) => {
@@ -486,7 +484,8 @@ class Action {
 						return;
 					};
 
-					C.AccountSelect(accountId, dataPath, mode, path, (message: any) => {
+					// Offline-only mode: always use Local network mode
+					C.AccountSelect(accountId, dataPath, I.NetworkMode.Local, '', (message: any) => {
 						const { account } = message;
 
 						if (onError(message.error) || !account) {

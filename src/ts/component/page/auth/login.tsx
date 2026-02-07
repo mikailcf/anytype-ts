@@ -57,20 +57,20 @@ const PageAuthLogin = observer(forwardRef<{}, I.PageComponent>((props, ref: any)
 	};
 
 	const select = () => {
-		const { accounts, networkConfig } = S.Auth;
+		const { accounts } = S.Auth;
 		if (isSelecting.current || !accounts.length) {
 			return;
 		};
 
 		isSelecting.current = true;
 
-		const { mode, path } = networkConfig;
 		const account = accounts[0];
 
 		S.Auth.accountSet(account);
 		Renderer.send('keytarSet', account.id, getPhrase());
 
-		C.AccountSelect(account.id, S.Common.dataPath, mode, path, (message: any) => {
+		// Offline-only mode: always use Local network mode
+		C.AccountSelect(account.id, S.Common.dataPath, I.NetworkMode.Local, '', (message: any) => {
 			if (setErrorHandler(message.error.code, message.error.description) || !message.account) {
 				isSelecting.current = false;
 				return;

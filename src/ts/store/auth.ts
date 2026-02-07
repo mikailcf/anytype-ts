@@ -46,11 +46,10 @@ class AuthStore {
 	};
 
 	get networkConfig (): NetworkConfig {
-		const obj = Storage.get('networkConfig') || {};
-
+		// Offline-only mode: always use Local network mode
 		return {
-			mode: Number(obj.mode) || I.NetworkMode.Default,
-			path: String(obj.path || ''),
+			mode: I.NetworkMode.Local,
+			path: '',
 		};
 	};
 
@@ -77,10 +76,11 @@ class AuthStore {
 
 	/**
 	 * Sets the network configuration.
-	 * @param {NetworkConfig} obj - The network configuration object.
+	 * No-op in offline-only mode - network config is always Local.
+	 * @param {NetworkConfig} obj - The network configuration object (ignored).
 	 */
 	networkConfigSet (obj: NetworkConfig) {
-		Storage.set('networkConfig', obj);
+		// No-op: offline-only mode always uses Local network
 	};
 
 	/**

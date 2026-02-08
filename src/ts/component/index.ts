@@ -104,8 +104,6 @@ import FooterAuthDisclaimer from './footer/auth/disclaimer';
 
 import QR from './util/qr';
 
-import UpsellBanner from './util/upsell/';
-
 import EmptyNodes from './util/emptyNodes';
 import LayoutPlug from './util/layoutPlug';
 
@@ -213,8 +211,6 @@ export {
 	EditorControls,
 
 	QR,
-
-	UpsellBanner,
 
 	EmptyNodes,
 	LayoutPlug,

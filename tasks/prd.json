@@ -1,0 +1,354 @@
+{
+  "project": "Anytype Offline-Only",
+  "branchName": "ralph/offline-only-mode",
+  "description": "Strip all online/network functionality from Anytype, creating a fully offline privacy-focused variant with local vault passphrase auth and file-based export/import",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Force local-only network mode in Electron and auth store",
+      "description": "As a developer, I need the app to always start in local-only mode so that the middleware never attempts network connections.",
+      "acceptanceCriteria": [
+        "In electron/js/server.js, always pass NetworkMode.Local (value 1) when spawning the middleware",
+        "In store/auth.ts, hardcode networkConfig to { mode: 1, path: '' } and remove networkConfigSet method",
+        "In lib/util/data.ts accountCreate(), always use NetworkMode.Local for AccountCreate call",
+        "In lib/util/data.ts, AccountSelect calls always use NetworkMode.Local",
+        "Remove any UI that allows selecting network mode (Default/Local/Custom)",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Done. Hardcoded networkConfig to Local mode in auth store, made networkConfigSet a no-op, removed network mode selector from onboarding popup."
+    },
+    {
+      "id": "US-002",
+      "title": "Remove membership settings page and sidebar item",
+      "description": "As a user, I should not see any membership tiers or upgrade options in settings.",
+      "acceptanceCriteria": [
+        "Remove or gut component/page/main/settings/membership.tsx so it is no longer rendered",
+        "Remove the 'Membership' item from the settings sidebar in sidebar/page/settings/index.tsx",
+        "Remove the settings route for membership if one exists",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Done. Removed membership from settings index, page routes, sidebar, help menu incentive, and onboarding trigger."
+    },
+    {
+      "id": "US-003",
+      "title": "Remove membership popup and upsell banners",
+      "description": "As a user, I should never see membership upgrade prompts or payment flows.",
+      "acceptanceCriteria": [
+        "Remove popup/membership.tsx and all references that open this popup",
+        "Remove the UpsellBanner component and all references to it throughout the codebase",
+        "Remove any 'Upgrade' or 'Get membership' buttons/links in other components",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "Done. Removed membership popups from registry, UpsellBanner from component exports and all usages (syncStatus, storage, share), Action.membershipUpgrade (kept as no-op stub), identity menu membership link, auth setup finalization check, page/main/membership redirect to dashboard."
+    },
+    {
+      "id": "US-004",
+      "title": "Remove membership gRPC commands and store state",
+      "description": "As a developer, I need to remove all membership-related backend calls and state now that no UI references them.",
+      "acceptanceCriteria": [
+        "Remove from lib/api/command.ts: MembershipGetStatus, MembershipGetTiers, MembershipGetPortalLinkUrl, MembershipGetVerificationEmail, MembershipVerifyEmailCode, MembershipRegisterPaymentRequest, MembershipFinalize, MembershipCodeGetInfo, MembershipCodeRedeem",
+        "Remove membership, membershipSet, membershipUpdate from store/auth.ts",
+        "Remove any remaining references to these commands or store fields",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": "Done. Removed all Membership* commands from command.ts, stubbed membershipSet/membershipUpdate as no-ops, gutted all popup/membership files, removed email verification from onboarding."
+    },
+    {
+      "id": "US-005",
+      "title": "Remove publishing UI, commands, and sidebar item",
+      "description": "As a user, I should not see any publish-to-web functionality.",
+      "acceptanceCriteria": [
+        "Remove component/page/main/settings/data/publish.tsx or make it unreachable",
+        "Remove 'Published Data' item from the settings sidebar",
+        "Remove any 'Publish' buttons or menu items on individual objects throughout the codebase",
+        "Remove from lib/api/command.ts: PublishingCreate, PublishingRemove, PublishingList, PublishingResolveUri, PublishingGetStatus",
+        "Remove all remaining references to publishing commands",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "Done. Removed dataPublish from sidebar, PageDataPublish from settings index, all Publishing* commands from command.ts, MenuPublish from menu index, share/publish button from object and history headers, publish from editor menuCheck, stubbed menu/publish.tsx and data/publish.tsx, removed PublishingList from data/index.tsx."
+    },
+    {
+      "id": "US-006",
+      "title": "Remove space sharing settings pages",
+      "description": "As a user, I should not see any sharing or members management in space settings.",
+      "acceptanceCriteria": [
+        "Remove component/page/main/settings/space/share.tsx and share/members.tsx or make them unreachable",
+        "Remove the 'Members' or 'Share' menu item from space settings sidebar",
+        "Remove the settings route for space sharing",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "Done. Removed spaceShare from sidebar, settings index, and SPACE_PAGES. Stubbed share.tsx. Made Action.openSpaceShare a no-op."
+    },
+    {
+      "id": "US-007",
+      "title": "Remove invite popups, invite page, and share popup",
+      "description": "As a user, I should not encounter any invite or share dialogs.",
+      "acceptanceCriteria": [
+        "Remove popup/invite/confirm.tsx, popup/invite/qr.tsx, popup/invite/request.tsx",
+        "Remove component/page/main/invite.tsx and its route",
+        "Remove popup/share.tsx and all references that open it",
+        "Remove notification handling for space join requests in component/notification/index.tsx",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Remove sharing and invite gRPC commands",
+      "description": "As a developer, I need to remove all sharing-related backend calls now that no UI references them.",
+      "acceptanceCriteria": [
+        "Remove from lib/api/command.ts: SpaceInviteGenerate, SpaceInviteChange, SpaceInviteView, SpaceInviteRevoke, SpaceInviteGetCurrent, SpaceStopSharing, SpaceMakeShareable, SpaceJoin, SpaceJoinCancel, SpaceRequestApprove, SpaceRequestDecline, SpaceParticipantPermissionsChange, SpaceParticipantRemove",
+        "Remove NotificationList, NotificationReply if only used for share notifications",
+        "Remove all remaining references to these commands",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Remove sync status widget and menu",
+      "description": "As a user, I should not see any sync indicators since everything is local.",
+      "acceptanceCriteria": [
+        "Remove or hide the sync status widget in component/util/sync.tsx from the header/toolbar",
+        "Remove the sync status menu in component/menu/syncStatus.tsx",
+        "Remove sync-related badge on the 'Remote Storage' settings item in sidebar/page/settings/index.tsx",
+        "Remove P2P device count and sync counters from any visible UI",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Remove sync state from auth store and related gRPC commands",
+      "description": "As a developer, I need to remove sync status tracking and device/debug network commands.",
+      "acceptanceCriteria": [
+        "Remove syncStatusMap, syncStatusUpdate, getSyncStatus, getNotSynced from store/auth.ts",
+        "Remove from lib/api/command.ts: DeviceList, DebugNetCheck",
+        "Remove AccountRecover from lib/api/command.ts (network-based recovery)",
+        "Remove all remaining references to these store fields and commands",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Remove analytics and telemetry",
+      "description": "As a user, I expect zero telemetry in an offline-only privacy-focused app.",
+      "acceptanceCriteria": [
+        "Remove or disable all analytics event tracking (Amplitude, Mixpanel, or custom analytics)",
+        "Remove analytics-related gRPC commands if any exist",
+        "Remove analytics initialization from app startup",
+        "Verify no analytics-related imports remain active",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Remove Electron auto-update",
+      "description": "As a developer, I need to remove auto-update since it makes network calls.",
+      "acceptanceCriteria": [
+        "Remove or disable electron-updater functionality in the Electron main process",
+        "Remove any UI that shows update availability or update progress",
+        "Remove update-related IPC handlers between main and renderer",
+        "App starts without attempting any update check network calls",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Remove online state and network utility functions",
+      "description": "As a developer, I need to remove the global online/offline tracking since the app is always offline.",
+      "acceptanceCriteria": [
+        "Remove isOnline computed property and isOnlineSet from store/common.ts",
+        "Remove isAnytypeNetwork(), isDevelopmentNetwork() from lib/util/data.ts",
+        "Make isLocalNetwork() in lib/util/data.ts always return true, or remove it and inline true at call sites",
+        "Remove spaceStorage remote tracking from common store if it only tracks remote storage",
+        "Fix all resulting TypeScript errors from these removals",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Clean up online-dependent UI conditionals",
+      "description": "As a developer, I need to remove conditional logic that checks for online/network state throughout the UI.",
+      "acceptanceCriteria": [
+        "Find and remove all S.Common.isOnline conditionals — resolve branches as if always offline",
+        "Find and remove all U.Data.isAnytypeNetwork() conditionals — resolve branches as if never on Anytype network",
+        "Find and remove all U.Data.isLocalNetwork() conditionals — resolve branches as if always true",
+        "No remaining references to isOnline, isAnytypeNetwork, or isLocalNetwork in component code",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": "This is a sweep across many files. Focus on component/ directory."
+    },
+    {
+      "id": "US-015",
+      "title": "Simplify auth flow — remove email and cloud-dependent steps",
+      "description": "As a user, I want a simple passphrase-based vault creation and unlock without cloud account steps.",
+      "acceptanceCriteria": [
+        "Remove email verification step (Stage.Email) from component/page/auth/onboard.tsx",
+        "Remove network-based account recovery path from component/page/auth/login.tsx",
+        "Remove account deletion screen component/page/auth/deleted.tsx (user deletes vault folder manually)",
+        "Remove migration flow in component/page/auth/migrate.tsx if it depends on network",
+        "Existing passphrase-based vault creation and unlock still works",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": "Keep the existing mnemonic passphrase system per user answer."
+    },
+    {
+      "id": "US-016",
+      "title": "Add offline-only disclaimer to onboarding",
+      "description": "As a user, I want to see a clear disclaimer during onboarding that this is an offline-only app.",
+      "acceptanceCriteria": [
+        "Add a visible disclaimer text on the onboarding/vault creation screen stating this is an offline-only version",
+        "Disclaimer uses the translate() function for i18n",
+        "Disclaimer is non-blocking — user can proceed past it",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Replace remote storage settings with local-only storage view",
+      "description": "As a user, I want to see my local storage usage instead of remote/cloud storage.",
+      "acceptanceCriteria": [
+        "Repurpose component/page/main/settings/space/storage.tsx to show only local disk usage for the vault",
+        "Remove references to remote storage usage, 'not synced' files, and sync error states",
+        "Remove any 'Upgrade' storage prompts",
+        "Rename sidebar item from 'Remote Storage' to 'Local Storage' or 'Storage'",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-018",
+      "title": "Add vault export functionality to settings",
+      "description": "As a user, I want to export my vault data to a file for backup and portability.",
+      "acceptanceCriteria": [
+        "Add 'Export vault' option in Settings > Data Management section",
+        "Export uses Anytype's existing protobuf export infrastructure (Action.export or similar)",
+        "User can choose a destination path via native file dialog",
+        "Progress indicator shown during export",
+        "Error handling for failed exports with user-visible message",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": "Build on existing export infrastructure rather than creating new system."
+    },
+    {
+      "id": "US-019",
+      "title": "Add vault import functionality to settings",
+      "description": "As a user, I want to import data from a previously exported vault file.",
+      "acceptanceCriteria": [
+        "Add 'Import vault' option in Settings > Data Management section",
+        "Import uses Anytype's existing protobuf import infrastructure (Action.import or similar)",
+        "User can select a file via native file dialog",
+        "Progress indicator shown during import",
+        "Error handling for corrupt or incompatible files with user-visible message",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": "Build on existing import infrastructure rather than creating new system."
+    },
+    {
+      "id": "US-020",
+      "title": "Clean up settings sidebar to show only offline-relevant items",
+      "description": "As a user, I want a clean settings page with no dead links or references to removed features.",
+      "acceptanceCriteria": [
+        "Settings sidebar contains only: Account, Space settings (name, icon, storage), Data management (local storage, export/import), Appearance, General preferences",
+        "No sidebar items for: Membership, Published Data, Share/Members",
+        "No empty sections, broken links, or pages that render nothing",
+        "Navigation between all remaining settings pages works correctly",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": "This is the final UI cleanup pass — verify everything removed in prior stories is truly gone."
+    },
+    {
+      "id": "US-021",
+      "title": "Middleware: Remove network sync and P2P from anytype-heart",
+      "description": "As a developer, I need to remove all networking code from the Go middleware so it never makes outbound connections.",
+      "acceptanceCriteria": [
+        "Disable or remove IPFS/libp2p networking stack",
+        "Disable or remove Any-Sync protocol client",
+        "Disable or remove DHT, relay, STUN/TURN connections",
+        "Remove space sync service",
+        "AccountCreate and AccountSelect only accept NetworkMode.Local",
+        "Build succeeds (go build)",
+        "Integration tests pass with no network calls"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": "Target repo: anytype-heart. Critical path — must be done for true offline-only."
+    },
+    {
+      "id": "US-022",
+      "title": "Middleware: Remove remote services from anytype-heart",
+      "description": "As a developer, I need to remove cloud-dependent services from the middleware.",
+      "acceptanceCriteria": [
+        "Remove account recovery via network",
+        "Remove file pinning/remote file storage service",
+        "Remove publishing service",
+        "Remove membership/payment verification service",
+        "Remove notification service (network-based notifications)",
+        "All data operations work purely against local badger/SQLite stores",
+        "Build succeeds (go build)",
+        "Integration tests pass with no network calls"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": "Target repo: anytype-heart. Depends on US-021."
+    }
+  ]
+}

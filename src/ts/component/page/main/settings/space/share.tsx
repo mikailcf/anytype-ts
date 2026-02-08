@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
-import { Title, Label, Icon, Input, Button, Error, UpsellBanner } from 'Component';
+import { Title, Label, Icon, Input, Button, Error } from 'Component';
 import { I, C, S, U, translate, Preview, Action, analytics } from 'Lib';
 import Members from './share/members';
 
@@ -44,10 +44,6 @@ const PageMainSettingsSpaceShare = observer(class PageMainSettingsSpaceShare ext
 
 		return (
 			<div ref={node => this.node = node}>
-				<div>
-					<UpsellBanner components={[ 'members', 'space'  ]} route={analytics.route.settingsSpaceShare} />
-				</div>
-
 				<div id="titleWrapper" className="titleWrapper">
 					<Title text={translate('popupSettingsSpaceShareTitle')} />
 				</div>

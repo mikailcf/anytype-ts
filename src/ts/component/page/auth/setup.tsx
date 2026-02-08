@@ -68,16 +68,8 @@ const PageAuthSetup = observer(forwardRef<{}, I.PageComponent>((props, ref) => {
 					].forEach(it => Survey.check(it));
 
 					const cb1 = () => {
-						U.Data.getMembershipStatus(membership => {
-							if (membership.status == I.MembershipStatus.Finalization) {
-								S.Popup.open('membershipFinalization', { 
-									onClose: cb2,
-									data: { tier: membership.tier },
-								});
-							} else {
-								cb2();
-							};
-						});
+						// Membership features removed in offline-only mode
+						cb2();
 					};
 
 					const cb2 = () => {

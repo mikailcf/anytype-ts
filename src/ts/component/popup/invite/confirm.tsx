@@ -17,11 +17,8 @@ const PopupInviteConfirm = observer(forwardRef<{}, I.Popup>((props, ref) => {
 	const space = U.Space.getSpaceviewBySpaceId(spaceId) || {};
 
 	const onMembership = (type: string) => {
-		S.Popup.closeAll(null, () => {
-			U.Object.openRoute({ id: 'membership', layout: I.ObjectLayout.Settings });
-		});
-
-		analytics.event('ClickUpgradePlanTooltip', { type, route: analytics.route.inviteConfirm });
+		// No-op: membership features removed in offline-only mode
+		close();
 	};
 
 	const onConfirm = (permissions: I.ParticipantPermissions) => {

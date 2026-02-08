@@ -24,9 +24,6 @@ import PopupRelation from './relation';
 import PopupInviteRequest from './invite/request';
 import PopupInviteConfirm from './invite/confirm';
 import PopupInviteQr from './invite/qr';
-import PopupMembership from './membership';
-import PopupMembershipActivation from './membership/activation';
-import PopupMembershipFinalization from './membership/finalization';
 import PopupShare from './share';
 import PopupSpaceCreate from './space/create';
 import PopupSpaceJoinByLink from './space/joinByLink';
@@ -163,9 +160,6 @@ const Popup = observer(forwardRef<{}, I.Popup>((props, ref) => {
 		inviteRequest:			 PopupInviteRequest,
 		inviteConfirm:			 PopupInviteConfirm,
 		inviteQr:				 PopupInviteQr,
-		membership: 		 	 PopupMembership,
-		membershipActivation: 	 PopupMembershipActivation,
-		membershipFinalization:  PopupMembershipFinalization,
 		share:					 PopupShare,
 		spaceCreate:			 PopupSpaceCreate,
 		spaceJoinByLink:		 PopupSpaceJoinByLink,

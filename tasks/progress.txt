@@ -1,0 +1,31 @@
+## Codebase Patterns
+- Typecheck errors in dist/lib/pkg/ and node_modules/ are pre-existing issues from protobuf generation and dependencies, not from source code changes
+- Component exports are centralized in src/ts/component/index.ts
+- Popup components are registered in src/ts/component/popup/index.tsx (both import and Components object)
+- When removing a feature, make functions no-ops rather than deleting them to avoid breaking callers
+- Settings sidebar items are in src/ts/component/sidebar/page/settings/index.tsx
+- Settings page components are registered in src/ts/component/page/main/settings/index.tsx
+
+---
+
+## 2026-02-07 - US-003
+- What was implemented: Completed removal of membership popups and UpsellBanner component
+- Files changed:
+  - src/ts/component/popup/index.tsx - Removed imports and registrations for PopupMembership, PopupMembershipActivation, PopupMembershipFinalization
+  - src/ts/component/index.ts - Removed UpsellBanner import and export
+  - src/ts/component/menu/syncStatus.tsx - Removed UpsellBanner import and usage
+  - src/ts/component/page/main/settings/space/storage.tsx - Removed UpsellBanner import and usage
+  - src/ts/component/page/main/settings/space/share.tsx - Removed UpsellBanner import and usage
+  - src/ts/lib/action.ts - Made membershipUpgrade and membershipUpgradeViaEmail no-ops
+  - src/ts/component/menu/identity.tsx - Made onClick no-op
+  - src/ts/component/menu/syncStatus/info.tsx - Made upgradeMembership case no-op
+  - src/ts/component/page/auth/setup.tsx - Simplified cb1 to skip membership finalization check
+  - src/ts/component/page/main/membership.tsx - Simplified init to just redirect to dashboard
+  - src/ts/component/popup/invite/confirm.tsx - Made onMembership no-op
+- **Learnings for future iterations:**
+  - The membership popup had 3 variants: main, activation, and finalization - all need to be removed together
+  - UpsellBanner was used in syncStatus menu, storage settings, and share settings
+  - Action.membershipUpgrade is called from multiple places - making it a no-op is safer than finding all callers
+  - Page components can be left in place if they're unreachable from routes/sidebar
+
+---

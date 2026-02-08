@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
-import { Title, ListObjectManager, Label, Button, ProgressBar, UpsellBanner } from 'Component';
+import { Title, ListObjectManager, Label, Button, ProgressBar } from 'Component';
 import { I, J, U, S, translate, Action, analytics } from 'Lib';
 
 const PageMainSettingsStorage = observer(class PageMainSettingsStorage extends React.Component<I.PageSettingsComponent, {}> {
@@ -107,8 +107,6 @@ const PageMainSettingsStorage = observer(class PageMainSettingsStorage extends R
 
 		return (
 			<div ref={ref => this.node = ref} className="wrap">
-				<UpsellBanner components={[ 'storage' ]} route={analytics.route.settingsStorage} />
-
 				<Title text={translate(`pageSettingsSpaceRemoteStorage`)} />
 				<Label text={translate(`popupSettingsSpaceIndexStorageText`)} />
 

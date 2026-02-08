@@ -910,36 +910,14 @@ class Action {
 	};
 
 	membershipUpgrade (tier?: I.TierType) {
-		if (!U.Common.checkCanMembershipUpgrade()) {
-			this.membershipUpgradeViaEmail();
-			return;
-		};
-
-		U.Object.openRoute(
-			{ id: 'membership', layout: I.ObjectLayout.Settings },
-			{
-				onRouteChange: () => {
-					S.Popup.open('membership', {
-						data: { tier: tier ? tier : I.TierType.Builder }
-					});
-				}
-			},
-		);
+		// No-op: membership features removed in offline-only mode
 	};
 
 	/**
 	 * Opens a membership upgrade confirmation popup.
 	 */
 	membershipUpgradeViaEmail () {
-		S.Popup.open('confirm', {
-			data: {
-				title: translate('popupConfirmMembershipUpgradeTitle'),
-				text: translate('popupConfirmMembershipUpgradeText'),
-				textConfirm: translate('popupConfirmMembershipUpgradeButton'),
-				onConfirm: () => keyboard.onMembershipUpgradeViaEmail(),
-				canCancel: false
-			}
-		});
+		// No-op: membership features removed in offline-only mode
 	};
 
 	/**

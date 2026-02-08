@@ -28,7 +28,7 @@ const MenuSyncStatusInfo = forwardRef<{}, I.Menu>((props, ref) => {
 			};
 
 			case 'upgradeMembership': {
-				S.Popup.open('membership', { data: { tier: I.TierType.Builder } });
+				// No-op: membership features removed in offline-only mode
 				break;
 			};
 		};

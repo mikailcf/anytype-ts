@@ -12,7 +12,6 @@ const NO_DIMMER_IDS = [
 	'phrase',
 	'objectManager',
 	'relation',
-	'inviteQr',
 ];
 
 class PopupStore {

@@ -471,17 +471,7 @@ const PageMainSettingsSpaceIndex = observer(class PageMainSettingsSpaceIndex ext
 	};
 
 	getButtons (): any[] {
-		const { cid, key } = this.state;
-		
-		if (!cid || !key) {
-			return [];
-		};
-
-		return [
-			{ id: 'invite', name: translate('commonAdd'), icon: 'invite' },
-			{ id: 'copyLink', name: translate('pageSettingsSpaceIndexCopyLink'), icon: 'copyLink' },
-			{ id: 'qr', name: translate('pageSettingsSpaceIndexQRCode'), icon: 'qr' },
-		];
+		return [];
 	};
 
 	updateCounters () {

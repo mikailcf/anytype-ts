@@ -21,12 +21,7 @@ import PopupObjectManager from './objectManager';
 import PopupUsecase from './usecase';
 import PopupAbout from './about';
 import PopupRelation from './relation';
-import PopupInviteRequest from './invite/request';
-import PopupInviteConfirm from './invite/confirm';
-import PopupInviteQr from './invite/qr';
-import PopupShare from './share';
 import PopupSpaceCreate from './space/create';
-import PopupSpaceJoinByLink from './space/joinByLink';
 import PopupLogout from './logout';
 import PopupOnboarding from './onboarding';
 import PopupApiCreate from './api/create';
@@ -157,12 +152,7 @@ const Popup = observer(forwardRef<{}, I.Popup>((props, ref) => {
 		usecase:				 PopupUsecase,
 		about:					 PopupAbout,
 		relation:				 PopupRelation,
-		inviteRequest:			 PopupInviteRequest,
-		inviteConfirm:			 PopupInviteConfirm,
-		inviteQr:				 PopupInviteQr,
-		share:					 PopupShare,
 		spaceCreate:			 PopupSpaceCreate,
-		spaceJoinByLink:		 PopupSpaceJoinByLink,
 		logout: 				 PopupLogout,
 		onboarding:				 PopupOnboarding,
 		apiCreate:				 PopupApiCreate,

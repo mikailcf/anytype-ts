@@ -5,6 +5,49 @@
 - When removing a feature, make functions no-ops rather than deleting them to avoid breaking callers
 - Settings sidebar items are in src/ts/component/sidebar/page/settings/index.tsx
 - Settings page components are registered in src/ts/component/page/main/settings/index.tsx
+- Menu components are registered in src/ts/component/menu/index.tsx (both import and Components object)
+- Publishing-related commands are in lib/api/command.ts under the PUBLISHING section
+- Share button in headers is controlled by showShare variable - set to false to hide
+- Invite popups (confirm, qr, request) and share popup are registered in popup/index.tsx Components object
+- Space settings invite/qr/copyLink buttons are in getButtons() in settings/space/index.tsx
+- Join notification handling is in notification/index.tsx case I.NotificationType.Join
+- U.Common.onInviteRequest() and U.Menu.inviteContext() are utility wrappers for invite UI
+- PopupSpaceJoinByLink routes to /main/invite/ page - both need to be addressed together
+
+---
+
+## 2026-02-07 - US-006
+- What was implemented: Removed space sharing settings pages
+- Files changed:
+  - src/ts/component/sidebar/page/settings/index.tsx - Removed spaceShare from sidebar menu
+  - src/ts/component/page/main/settings/index.tsx - Removed PageSpaceShare import, registration, and from SPACE_PAGES
+  - src/ts/component/page/main/settings/space/share.tsx - Stubbed to return null
+  - src/ts/lib/action.ts - Made openSpaceShare a no-op
+  - src/ts/lib/keyboard.ts - Removed spaceShare from navigation handler
+- **Learnings for future iterations:**
+  - Space share settings had a keyboard.ts reference for back navigation handling
+  - The share.tsx component imports a Members sub-component from share/members.tsx - stubbing share.tsx makes members.tsx unreachable too
+  - Action.openSpaceShare is called from other places - making it a no-op is safer than tracking all callers
+
+---
+
+## 2026-02-07 - US-005
+- What was implemented: Removed publishing UI, commands, and sidebar item
+- Files changed:
+  - src/ts/component/sidebar/page/settings/index.tsx - Removed dataPublish from sidebar menu
+  - src/ts/component/page/main/settings/index.tsx - Removed PageDataPublish import and registration
+  - src/ts/lib/api/command.ts - Removed Publishing* commands (PublishingCreate, PublishingRemove, PublishingList, PublishingResolveUri, PublishingGetStatus)
+  - src/ts/component/menu/index.tsx - Removed MenuPublish import and registration
+  - src/ts/component/header/main/object.tsx - Disabled share button (showShare = false), made onShare no-op
+  - src/ts/component/header/main/history.tsx - Disabled share button (showShare = false), made onShare no-op
+  - src/ts/component/editor/page.tsx - Removed 'publish' from menuCheck
+  - src/ts/component/menu/publish.tsx - Stubbed to return null
+  - src/ts/component/page/main/settings/data/publish.tsx - Stubbed to return null
+  - src/ts/component/page/main/settings/data/index.tsx - Removed PublishingList call and unused state
+- **Learnings for future iterations:**
+  - Publishing involves multiple UI touchpoints: settings sidebar, settings page, object header share button, history header share button, editor menuCheck
+  - The share button in headers opens the publish menu - disabling publishing means disabling the share button
+  - Stubbing components to return null is cleaner than deleting them when imports still exist elsewhere
 
 ---
 
@@ -27,5 +70,31 @@
   - UpsellBanner was used in syncStatus menu, storage settings, and share settings
   - Action.membershipUpgrade is called from multiple places - making it a no-op is safer than finding all callers
   - Page components can be left in place if they're unreachable from routes/sidebar
+
+---
+
+## 2026-02-08 - US-007
+- What was implemented: Removed invite popups, invite page, share popup, and space join notification handling
+- Files changed:
+  - src/ts/component/popup/index.tsx - Removed imports and registrations for PopupInviteRequest, PopupInviteConfirm, PopupInviteQr, PopupShare, PopupSpaceJoinByLink
+  - src/ts/component/popup/invite/confirm.tsx - Stubbed to return null
+  - src/ts/component/popup/invite/qr.tsx - Stubbed to return null
+  - src/ts/component/popup/invite/request.tsx - Stubbed to return null
+  - src/ts/component/popup/share.tsx - Stubbed to return null
+  - src/ts/component/popup/space/joinByLink.tsx - Stubbed to return null
+  - src/ts/component/page/main/invite.tsx - Stubbed to redirect to dashboard
+  - src/ts/component/page/main/object.tsx - Changed invite redirect to go to dashboard instead
+  - src/ts/component/notification/index.tsx - Removed Join notification buttons and inviteConfirm popup opening
+  - src/ts/component/menu/help.tsx - Removed 'share' menu item and its handler
+  - src/ts/component/page/main/settings/space/index.tsx - Made getButtons() return empty array (removed invite/copyLink/qr)
+  - src/ts/lib/util/common.ts - Made onInviteRequest a no-op
+  - src/ts/lib/util/menu.ts - Made inviteContext a no-op
+  - src/ts/store/popup.ts - Removed 'inviteQr' from NO_DIMMER_IDS
+- **Learnings for future iterations:**
+  - Invite flow has many touchpoints: popup components, page route, notification handler, space settings buttons, help menu, utility functions
+  - PopupSpaceJoinByLink navigates to /main/invite/ page - removing the invite page means also stubbing joinByLink
+  - page/main/object.tsx has a redirect to invite page when cid/key params present - needs to redirect to dashboard in offline mode
+  - The help menu has a 'share' item that opens the share popup (share the Anytype app link) - distinct from space sharing
+  - Space settings index has getButtons() that returns invite/copyLink/qr buttons based on cid/key state
 
 ---

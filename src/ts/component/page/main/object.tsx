@@ -10,10 +10,9 @@ const PageMainObject = forwardRef<{}, I.PageComponent>((props, ref) => {
 		const space = U.Space.getSpaceviewBySpaceId(spaceId);
 		const route = match.params.route || analytics.route.app;
 
-		// Redirect to invite page when invite parameters are present
+		// In offline-only mode, ignore invite parameters
 		if ((!space || !space.isAccountActive) && cid && key) {
-			U.Router.go(`/main/invite/?cid=${cid}&key=${key}`, { replace: true });
-			analytics.event('OpenObjectByLink', { route, type: 'Invite' });
+			U.Space.openDashboardOrVoid();
 			return;
 		};
 

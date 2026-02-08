@@ -32,7 +32,6 @@ const MenuHelp = forwardRef<I.MenuRef, I.Menu>((props, ref) => {
 			},
 			{ id: 'shortcut', icon: 'help-keyboard', caption: keyboard.getCaption('shortcut') },
 			{ isDiv: true },
-			{ id: 'share' },
 			{ id: 'community' },
 			{ id: 'tutorial' },
 			{ id: 'contact' },
@@ -125,10 +124,6 @@ const MenuHelp = forwardRef<I.MenuRef, I.Menu>((props, ref) => {
 				break;
 			};
 
-			case 'share': {
-				S.Popup.open('share', {});
-				break;
-			};
 		};
 	};
 

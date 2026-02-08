@@ -882,20 +882,9 @@ class UtilCommon {
 	};
 
 	/**
-	 * Shows an invite request popup and handles navigation on cancel.
+	 * No-op: invite features removed in offline-only mode.
 	 */
 	onInviteRequest () {
-		S.Popup.open('confirm', {
-			data: {
-				title: translate('popupInviteInviteConfirmTitle'),
-				text: translate('popupInviteInviteConfirmText'),
-				textConfirm: translate('commonDone'),
-				textCancel: translate('popupInviteInviteConfirmCancel'),
-				onCancel: () => {
-					U.Object.openRoute({ id: 'spaceList', layout: I.ObjectLayout.Settings });
-				},
-			},
-		});
 	};
 
 	/**

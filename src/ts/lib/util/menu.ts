@@ -872,28 +872,7 @@ class UtilMenu {
 	};
 
 	inviteContext (param: any) {
-		const { containerId, cid, key } = param || {};
-		const options: any[] = [
-			{ id: 'qr', name: translate('popupSettingsSpaceShareQRCode') },
-		];
-
-		S.Menu.open('select', {
-			element: `#${containerId} #button-more-link`,
-			horizontal: I.MenuDirection.Center,
-			data: {
-				options,
-				onSelect: (e: any, item: any) => {
-					switch (item.id) {
-						case 'qr': {
-							S.Popup.open('inviteQr', { data: { link: U.Space.getInviteLink(cid, key) } });
-							analytics.event('ClickSettingsSpaceShare', { type: 'Qr' });
-							analytics.event('ScreenQr', { route: analytics.route.inviteLink });
-							break;
-						};
-					};
-				},
-			}
-		});
+		// No-op: invite features removed in offline-only mode
 	};
 
 	getVaultItems () {

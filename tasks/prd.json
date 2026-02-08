@@ -60,7 +60,7 @@
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "Done. Removed all Membership* commands from command.ts, stubbed membershipSet/membershipUpdate as no-ops, gutted all popup/membership files, removed email verification from onboarding."
     },
     {
@@ -77,7 +77,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "Done. Removed dataPublish from sidebar, PageDataPublish from settings index, all Publishing* commands from command.ts, MenuPublish from menu index, share/publish button from object and history headers, publish from editor menuCheck, stubbed menu/publish.tsx and data/publish.tsx, removed PublishingList from data/index.tsx."
     },
     {
@@ -92,8 +92,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 6,
-      "passes": false,
-      "notes": "Done. Removed spaceShare from sidebar, settings index, and SPACE_PAGES. Stubbed share.tsx. Made Action.openSpaceShare a no-op."
+      "passes": true,
+      "notes": "Done. Removed spaceShare from sidebar, settings index, and SPACE_PAGES. Stubbed share.tsx. Made Action.openSpaceShare a no-op. Removed keyboard.ts spaceShare reference."
     },
     {
       "id": "US-007",
@@ -108,8 +108,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 7,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Done. Stubbed all invite popup components (confirm, qr, request) and share popup to return null. Removed their registrations from popup/index.tsx. Stubbed page/main/invite.tsx to redirect to dashboard. Stubbed popup/space/joinByLink.tsx. Removed join notification handling. Removed share from help menu. Made onInviteRequest and inviteContext no-ops. Removed invite/qr/copyLink buttons from space settings."
     },
     {
       "id": "US-008",

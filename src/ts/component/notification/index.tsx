@@ -31,10 +31,6 @@ const Notification: FC<I.NotificationComponent> = observer((props) => {
 		};
 
 		case I.NotificationType.Join: {
-			buttons = buttons.concat([
-				{ id: 'request', text: translate('notificationButtonRequest') },
-				{ id: 'spaceSwitch', text: translate('notificationButtonSpaceSwitch'), color: 'blank' },
-			]);
 			break;
 		};
 	};
@@ -58,18 +54,6 @@ const Notification: FC<I.NotificationComponent> = observer((props) => {
 				break;
 			};
 
-			case 'request': {
-				S.Popup.open('inviteConfirm', { 
-					data: {
-						name: payload.identityName,
-						icon: payload.identityIcon,
-						spaceId: payload.spaceId,
-						identity: payload.identity,
-						route: analytics.route.notification,
-					}
-				});
-				break;
-			};
 
 		};
 

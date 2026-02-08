@@ -227,7 +227,6 @@ const SidebarSettingsIndex = observer(class SidebarSettingsIndex extends React.C
 				id: 'common', name: translate('commonPreferences'),
 				children: [
 					{ id: 'spaceIndex', icon: 'space', name: translate('pageSettingsSpaceGeneral') },
-					isEntrySpace ? null : { id: 'spaceShare', icon: 'members', name: members.length > 1 ? translate('commonMembers') : translate('pageSettingsSpaceIndexInviteMembers') },
 					{ id: 'spaceStorage', icon: 'storage', name: translate('pageSettingsSpaceRemoteStorage'), alert: notSyncedCounter },
 					{ id: 'archive', icon: 'bin', name: translate('commonBin') },
 				].filter(it => it),

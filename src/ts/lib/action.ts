@@ -1088,7 +1088,7 @@ class Action {
 	};
 
 	openSpaceShare (route: string) {
-		this.openSettings('spaceShare', route);
+		// No-op - space sharing removed for offline-only mode
 	};
 
 };

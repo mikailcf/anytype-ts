@@ -30,7 +30,6 @@ import PageExportMarkdown from './export/markdown';
 
 import PageSpaceIndex from './space/index';
 import PageSpaceStorage from './space/storage';
-import PageSpaceShare from './space/share';
 import PageSpaceList from './space/list';
 
 import PageMainSet from '../set';
@@ -70,7 +69,6 @@ const Components: any = {
 	spaceIndex:			 PageSpaceIndex,
 	spaceIndexEmpty:	 PageSpaceIndex,
 	spaceStorage:		 PageSpaceStorage,
-	spaceShare:			 PageSpaceShare,
 	spaceList:			 PageSpaceList,
 
 	set:				 PageMainSet,
@@ -79,7 +77,7 @@ const Components: any = {
 };
 
 const SPACE_PAGES = [
-	'spaceIndex', 'spaceIndexEmpty', 'spaceStorage', 'spaceShare',
+	'spaceIndex', 'spaceIndexEmpty', 'spaceStorage',
 	'importIndex', 'importNotion', 'importNotionHelp', 'importNotionWarning', 'importCsv', 'importObsidian',
 	'exportIndex', 'exportProtobuf', 'exportMarkdown',
 	'set', 'relation', 'archive',

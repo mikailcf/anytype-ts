@@ -19,7 +19,7 @@ const HeaderMainHistory = observer(forwardRef<HeaderMainHistoryRefProps, I.Heade
 	const isDeleted = object._empty_ || object.isDeleted;
 	const isTypeOrRelation = U.Object.isTypeOrRelationLayout(object.layout);
 	const isDate = U.Object.isDateLayout(object.layout);
-	const showShare = S.Block.isAllowed(object.restrictions, [ I.RestrictionObject.Publish ], true) && !isDeleted;
+	const showShare = false; // Publishing disabled in offline-only mode
 	const showRelations = !isTypeOrRelation && !isDate && !isDeleted;
 	const showMenu = !isTypeOrRelation && !isDeleted;
 	const readonly = object.isArchived || isLocked;
@@ -51,14 +51,7 @@ const HeaderMainHistory = observer(forwardRef<HeaderMainHistoryRefProps, I.Heade
 	};
 
 	const onShare = () => {
-		menuOpen('publish', '#button-header-share', {
-			horizontal: I.MenuDirection.Right,
-			data: {
-				rootId,
-			}
-		});
-
-		analytics.event('ClickShareObject', { objectType: object.type });
+		// Publishing disabled in offline-only mode
 	};
 
 	useImperativeHandle(ref, () => ({

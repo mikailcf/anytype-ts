@@ -260,7 +260,6 @@ const SidebarSettingsIndex = observer(class SidebarSettingsIndex extends React.C
 				id: 'dataManagement', name: translate('popupSettingsDataManagementTitle'), children: [
 					{ id: 'dataIndex', name: translate('popupSettingsLocalStorageTitle'), icon: 'storage' },
 					{ id: 'spaceList', name: translate('popupSettingsSpacesListTitle'), icon: 'spaces' },
-					{ id: 'dataPublish', name: translate('popupSettingsDataManagementDataPublishTitle'), icon: 'sites' },
 					{ id: 'api', name: translate('popupSettingsApiTitle'), icon: 'api' },
 				]
 			}

@@ -1,22 +1,14 @@
 import * as React from 'react';
-import { Title, Label, IconObject, Button, Icon } from 'Component';
+import { Title, Label, Button, Icon } from 'Component';
 import { I, C, S, U, translate, analytics, Action } from 'Lib';
 import { observer } from 'mobx-react';
-
-interface State {
-	list: I.PublishState[];
-};
 
 interface Props extends I.PageSettingsComponent {
 	onPage: (id: string) => void;
 	setLoading: (v: boolean) => void;
 };
 
-const PageMainSettingsDataIndex = observer(class PageMainSettingsDataIndex extends React.Component<Props, State> {
-
-	state = {
-		list: [],
-	};
+const PageMainSettingsDataIndex = observer(class PageMainSettingsDataIndex extends React.Component<Props, {}> {
 
 	constructor (props: Props) {
 		super(props);
@@ -69,11 +61,7 @@ const PageMainSettingsDataIndex = observer(class PageMainSettingsDataIndex exten
 	};
 
 	componentDidMount(): void {
-		C.PublishingList('', (message: any) => {
-			if (!message.error.code) {
-				this.setState({ list: message.list });
-			};
-		});
+		// Publishing disabled in offline-only mode
 	};
 
 	onOffload (e: any) {

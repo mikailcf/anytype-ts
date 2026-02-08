@@ -18,7 +18,7 @@ const HeaderMainObject = observer(forwardRef<{}, I.HeaderComponent>((props, ref)
 	const isRelation = U.Object.isRelationLayout(object.layout);
 	const isDate = U.Object.isDateLayout(object.layout);
 	const isTemplate = U.Object.isTemplateType(object.type);
-	const showShare = S.Block.isAllowed(object.restrictions, [ I.RestrictionObject.Publish ], true) && !isDeleted && !object.isArchived;
+	const showShare = false; // Publishing disabled in offline-only mode
 	const showRelations = !isTypeOrRelation && !isDate && !isDeleted;
 	const showMenu = !isDeleted;
 	const showPin = canWrite && !isRelation && !isTemplate;
@@ -91,14 +91,7 @@ const HeaderMainObject = observer(forwardRef<{}, I.HeaderComponent>((props, ref)
 	};
 
 	const onShare = () => {
-		menuOpen('publish', '#button-header-share', {
-			horizontal: I.MenuDirection.Right,
-			data: {
-				rootId,
-			}
-		});
-
-		analytics.event('ClickShareObject', { objectType: object.type });
+		// Publishing disabled in offline-only mode
 	};
 
 	const onPin = () => {

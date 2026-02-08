@@ -12,7 +12,6 @@ import PageLanguage from './language';
 import PageApi from './api';
 
 import PageDataIndex from './data/index';
-import PageDataPublish from './data/publish';
 
 import PagePinIndex from './pin/index';
 import PagePinSelect from './pin/select';
@@ -56,7 +55,6 @@ const Components: any = {
 	pinConfirm:			 PagePinConfirm,
 
 	dataIndex: 			 PageDataIndex,
-	dataPublish:		 PageDataPublish,
 
 	importIndex:		 PageImportIndex,
 	importNotion:		 PageImportNotion,

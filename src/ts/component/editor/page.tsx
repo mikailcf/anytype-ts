@@ -1570,7 +1570,7 @@ const EditorPage = observer(class EditorPage extends React.Component<Props, Stat
 		if (S.Menu.isOpen('onboarding', 'withDimmer')) {
 			return true;
 		};
-		return S.Menu.isOpen('', '', [ 'blockContext', 'searchText', 'onboarding', 'publish' ]);
+		return S.Menu.isOpen('', '', [ 'blockContext', 'searchText', 'onboarding' ]);
 	};
 
 	onArrowVertical (e: any, pressed: string, range: I.TextRange, length: number, props: any) {

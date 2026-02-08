@@ -946,12 +946,6 @@ class Dispatcher {
 					break;
 				};
 
-				case 'MembershipUpdate': {
-					S.Auth.membershipUpdate(mapped.membership);
-					U.Data.getMembershipTiers(true);
-					break;
-				};
-
 				case 'ImportFinish': {
 					if (!account) {
 						break;

@@ -886,55 +886,21 @@ class UtilData {
 
 	/**
 	 * Gets the membership status for the current account.
-	 * @param {(membership: I.Membership) => void} [callBack] - Optional callback with the membership object.
+	 * No-op in offline-only mode - membership is disabled.
+	 * @param {(membership: I.Membership) => void} [callBack] - Optional callback (not called).
 	 */
 	getMembershipStatus (callBack?: (membership: I.Membership) => void) {
-		if (!this.isAnytypeNetwork()) {
-			return;
-		};
-
-		C.MembershipGetStatus(true, (message: any) => {
-			if (!message.membership) {
-				return;
-			};
-
-			const membership = new M.Membership(message.membership);
-			const { tier } = membership;
-
-			S.Auth.membershipSet(membership);
-			analytics.setTier(tier);
-
-			if (callBack) {
-				callBack(membership);
-			};
-		});
+		// No-op: offline-only mode has no membership
 	};
 
 	/**
 	 * Gets the available membership tiers.
-	 * @param {boolean} noCache - Whether to skip cache.
-	 * @param {() => void} [callBack] - Optional callback after fetching tiers.
+	 * No-op in offline-only mode - membership is disabled.
+	 * @param {boolean} noCache - Whether to skip cache (ignored).
+	 * @param {() => void} [callBack] - Optional callback (not called).
 	 */
 	getMembershipTiers (noCache: boolean, callBack?: () => void) {
-		const { config, interfaceLang, isOnline } = S.Common;
-		const { testPayment } = config;
-
-		if (!isOnline || !this.isAnytypeNetwork()) {
-			return;
-		};
-
-		C.MembershipGetTiers(noCache, interfaceLang, (message) => {
-			if (message.error.code) {
-				return;
-			};
-
-			const tiers = message.tiers.filter(it => (it.id == I.TierType.Explorer) || (it.isTest == !!testPayment));
-			S.Common.membershipTiersListSet(tiers);
-
-			if (callBack) {
-				callBack();
-			};
-		});
+		// No-op: offline-only mode has no membership
 	};
 
 	/**

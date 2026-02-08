@@ -93,18 +93,20 @@ class AuthStore {
 
 	/**
 	 * Sets the membership data.
-	 * @param {I.Membership} v - The membership data.
+	 * No-op in offline-only mode - membership is disabled.
+	 * @param {I.Membership} v - The membership data (ignored).
 	 */
 	membershipSet (v: I.Membership) {
-		this.membershipData = v;
+		// No-op: offline-only mode has no membership
 	};
 
 	/**
 	 * Updates the membership data.
-	 * @param {I.Membership} v - The membership data.
+	 * No-op in offline-only mode - membership is disabled.
+	 * @param {I.Membership} v - The membership data (ignored).
 	 */
 	membershipUpdate (v: I.Membership) {
-		set(this.membershipData, v);
+		// No-op: offline-only mode has no membership
 	};
 
 	/**
@@ -261,7 +263,6 @@ class AuthStore {
 		this.accountItem = null;
 
 		this.accountListClear();
-		this.membershipSet({ tier: I.TierType.None, status: I.MembershipStatus.Unknown });
 		this.syncStatusMap.clear();
 	};
 

@@ -92,34 +92,8 @@ const PageAuthOnboard = observer(forwardRef<{}, I.PageComponent>((props, ref) =>
 			};
 
 			case Stage.Email: {
-				const needEmail = U.Data.isAnytypeNetwork() && S.Common.isOnline;
-
-				if (!needEmail) {
-					Animation.from(() => setStage(stage + 1));
-					break;
-				};
-
-				const email = emailRef.current?.getValue();
-
-				if (email) {
-					nextRef.current?.setLoading(true);
-					
-					C.MembershipGetVerificationEmail(email, false, false, true, (message: any) => {
-						nextRef.current?.setLoading(false);
-
-						if (message.error.code) {
-							setError(message.error.description);
-							return;
-						};
-
-						Animation.from(() => setStage(stage + 1));
-
-						analytics.event('ScreenOnboardingEnterEmail', { middleTime: message.middleTime });
-					});
-				} else {
-					Animation.from(() => setStage(stage + 1));
-					analytics.event('ScreenOnboardingSkipEmail');
-				};
+				// Offline-only mode: skip email verification entirely
+				Animation.from(() => setStage(stage + 1));
 				break;
 			};
 

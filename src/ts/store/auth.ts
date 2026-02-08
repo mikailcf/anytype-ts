@@ -1,4 +1,4 @@
-import { observable, action, computed, set, makeObservable, intercept } from 'mobx';
+import { observable, action, computed, set, makeObservable } from 'mobx';
 import { I, M, C, S, U, Storage, analytics, Renderer, keyboard } from 'Lib';
 
 interface NetworkConfig {
@@ -15,7 +15,6 @@ class AuthStore {
 	public appKey = '';
 	public startingId: Map<string, string> = new Map();
 	public membershipData: I.Membership = { tier: I.TierType.None, status: I.MembershipStatus.Unknown };
-	public syncStatusMap: Map<string, I.SyncStatus> = new Map();
 	
 	constructor () {
 		makeObservable(this, {
@@ -111,30 +110,10 @@ class AuthStore {
 
 	/**
 	 * Updates the sync status for a space.
-	 * @param {I.SyncStatus} v - The sync status object.
+	 * No-op in offline-only mode - sync status is not tracked.
 	 */
-	syncStatusUpdate (v: I.SyncStatus) {
-		let obj = this.syncStatusMap.get(v.id);
-
-		if (!obj) {
-			obj = Object.assign(this.getDefaultSyncStatus(), v);
-
-			makeObservable(obj, {
-				error: observable,
-				network: observable,
-				status: observable,
-				p2p: observable,
-				syncingCounter: observable,
-				devicesCounter: observable,
-				notSyncedCounter: observable,
-			});
-
-			intercept(obj as any, change => U.Common.intercept(obj, change));
-		} else {
-			set(obj, v);
-		};
-
-		this.syncStatusMap.set(v.id, obj);
+	syncStatusUpdate (_v: I.SyncStatus) {
+		// No-op: offline-only mode has no sync
 	};
 
 	/**
@@ -210,11 +189,10 @@ class AuthStore {
 	};
 
 	/**
-	 * Gets the default sync status object.
-	 * @private
-	 * @returns {I.SyncStatus} The default sync status.
+	 * Gets the sync status for a space.
+	 * Returns default offline status in offline-only mode.
 	 */
-	getDefaultSyncStatus (): I.SyncStatus {
+	getSyncStatus (_spaceId?: string): I.SyncStatus {
 		return {
 			id: '',
 			error: I.SyncStatusError.None,
@@ -228,32 +206,11 @@ class AuthStore {
 	};
 
 	/**
-	 * Gets the sync status for a space.
-	 * @param {string} [spaceId] - The space ID.
-	 * @returns {I.SyncStatus} The sync status.
-	 */
-	getSyncStatus (spaceId?: string): I.SyncStatus {
-		return this.syncStatusMap.get(spaceId || S.Common.space) || this.getDefaultSyncStatus();
-	};
-
-	/**
-	 * Gets the number of not synced files across all spaces the user owns.
-	 * @returns {I.NotSyncedFiles}
+	 * Gets the number of not synced files.
+	 * Always returns zero in offline-only mode.
 	 */
 	getNotSynced (): I.NotSyncedFiles {
-		const files = [];
-
-		let total = 0;
-		for (const [ id, space ] of this.syncStatusMap) {
-			const { id, notSyncedCounter } = space;
-
-			if (U.Space.isMyOwner(id) && notSyncedCounter) {
-				total += notSyncedCounter || 0;
-				files.push({ spaceId: id, counter: notSyncedCounter });
-			};
-		};
-
-		return { total, files };
+		return { total: 0, files: [] };
 	};
 
 	/**
@@ -263,7 +220,6 @@ class AuthStore {
 		this.accountItem = null;
 
 		this.accountListClear();
-		this.syncStatusMap.clear();
 	};
 
 	/**

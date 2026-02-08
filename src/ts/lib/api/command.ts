@@ -205,12 +205,6 @@ export const AccountCreate = (name: string, avatarPath: string, storePath: strin
 	dispatcher.request(AccountCreate.name, request, callBack);
 };
 
-export const AccountRecover = (callBack?: (message: any) => void) => {
-	const request = new Rpc.Account.Recover.Request();
-
-	dispatcher.request(AccountRecover.name, request, callBack);
-};
-
 export const AccountSelect = (id: string, path: string, mode: I.NetworkMode, networkConfigPath: string, callBack?: (message: any) => void) => {
 	const request = new Rpc.Account.Select.Request();
 
@@ -2046,14 +2040,6 @@ export const DebugStat = (callBack?: (message: any) => void) => {
 	dispatcher.request(DebugStat.name, request, callBack);
 };
 
-export const DebugNetCheck = (config: string, callBack?: (message: any) => void) => {
-	const request = new Rpc.Debug.NetCheck.Request();
-
-	request.setClientyml(config);
-
-	dispatcher.request(DebugNetCheck.name, request, callBack);
-};
-
 export const DebugExportLog = (path: string, callBack?: (message: any) => void) => {
 	const request = new Rpc.Debug.ExportLog.Request();
 
@@ -2111,12 +2097,6 @@ export const BroadcastPayloadEvent = (payload: any, callBack?: (message: any) =>
 	request.setPayload(JSON.stringify(payload, null, 3));
 
 	dispatcher.request(BroadcastPayloadEvent.name, request, callBack);
-};
-
-// ---------------------- DEVICES ---------------------- //
-
-export const DeviceList = (callBack?: (message: any) => void) => {
-	dispatcher.request(DeviceList.name, new Commands.Empty(), callBack);
 };
 
 // ---------------------- CHAT ---------------------- //

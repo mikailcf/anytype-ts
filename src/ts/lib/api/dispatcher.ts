@@ -1099,7 +1099,7 @@ class Dispatcher {
 
 				case 'SpaceSyncStatusUpdate':
 				case 'P2PStatusUpdate': {
-					S.Auth.syncStatusUpdate(mapped);
+					// No-op: offline-only mode has no sync
 					break;
 				};
 

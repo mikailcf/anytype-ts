@@ -48,9 +48,13 @@ const PageAuthLogin = observer(forwardRef<{}, I.PageComponent>((props, ref: any)
 
 				S.Auth.accountListClear();
 				U.Data.createSession(phrase, '', '', () => {
-					C.AccountRecover(message => {
-						setErrorHandler(message.error.code, message.error.description);
-					});
+					// Offline-only: use stored account ID instead of network-based AccountRecover
+					const accountId = Storage.get('accountId');
+					if (accountId) {
+						S.Auth.accountAdd({ id: accountId });
+					} else {
+						setErrorHandler(1, translate('pageAuthLoginInvalidPhrase'));
+					};
 				});
 			});
 		});

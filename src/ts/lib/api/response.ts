@@ -78,12 +78,6 @@ export const DebugStat = (response: Rpc.Debug.Stat.Response) => {
 	return res;
 };
 
-export const DebugNetCheck = (response: Rpc.Debug.NetCheck.Response) => {
-	return {
-		result: response.getResult(),
-	};
-};
-
 export const DebugRunProfiler = (response: Rpc.Debug.RunProfiler.Response) => {
 	return {
 		path: response.getPath(),
@@ -602,12 +596,6 @@ export const MembershipCodeGetInfo = (response: Rpc.Membership.CodeGetInfo.Respo
 export const SpaceSetOrder = (response: Rpc.Space.SetOrder.Response) => {
 	return {
 		list: response.getSpacevieworderList() || [],
-	};
-};
-
-export const DeviceList = (response: Rpc.Device.List.Response) => {
-	return {
-		devices: (response.getDevicesList() || []).map(it => Mapper.From.DeviceInfo(it))
 	};
 };
 

@@ -1,12 +1,11 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
-import { MenuItemVertical, Button, ShareTooltip } from 'Component';
+import { MenuItemVertical, Button } from 'Component';
 import { I, S, U, J, keyboard, analytics, Action, Highlight, translate } from 'Lib';
 
 const MenuHelp = forwardRef<I.MenuRef, I.Menu>((props, ref) => {
 
 	const { id, param, setActive, close, getId, onKeyDown, getSize } = props;
 	const n = useRef(-1);
-	const showIncentive = U.Data.isFreeMember();
 
 	const rebind = () => {
 		unbind();
@@ -153,32 +152,16 @@ const MenuHelp = forwardRef<I.MenuRef, I.Menu>((props, ref) => {
 	}), []);
 
 	return (
-		<>
-			<div className="items">
-				{items.map((item: any, i: number) => (
-					<MenuItemVertical
-						key={i}
-						{...item}
-						onMouseEnter={e => onMouseEnter(e, item)}
-						onClick={e => onClick(e, item)}
-					/>
-				))}
-			</div>
-
-			{showIncentive ? (
-				<ShareTooltip
-					text={translate('shareTooltipLabel')}
-					onMouseEnter={() => {
-						n.current = -1;
-						S.Menu.closeAll([ 'select' ]);
-					}}
-					onClick={() => {
-						U.Router.go('/main/settings/membership', {});
-						analytics.event('ClickUpgradePlanTooltip', { type: 'help' });
-					}}
+		<div className="items">
+			{items.map((item: any, i: number) => (
+				<MenuItemVertical
+					key={i}
+					{...item}
+					onMouseEnter={e => onMouseEnter(e, item)}
+					onClick={e => onClick(e, item)}
 				/>
-			) : ''}
-		</>
+			))}
+		</div>
 	);
 
 });

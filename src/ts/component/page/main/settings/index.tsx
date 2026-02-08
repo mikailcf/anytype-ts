@@ -38,8 +38,6 @@ import PageMainSet from '../set';
 import PageMainRelation from '../relation';
 import PageMainArchive from '../archive';
 
-import PageMembership from './membership';
-
 interface State {
 	loading: boolean;
 };
@@ -50,7 +48,6 @@ const Components: any = {
 	delete:				 PageDelete,
 	personal:			 PagePersonal,
 	phrase:				 PagePhrase,
-	membership:			 PageMembership,
 	language:			 PageLanguage,
 	api:				 PageApi,
 

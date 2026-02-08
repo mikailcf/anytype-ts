@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
-import { I, keyboard, S, translate, U, Onboarding, Action, analytics } from 'Lib';
+import { I, keyboard, S, translate, U, Action, analytics } from 'Lib';
 import { Icon, IconObject, Label } from 'Component';
 import { AutoSizer, CellMeasurer, InfiniteLoader, List, CellMeasurerCache } from 'react-virtualized';
 
@@ -27,7 +27,6 @@ const SidebarSettingsIndex = observer(class SidebarSettingsIndex extends React.C
 
 	render () {
 		const { page } = this.props;
-		const { membership } = S.Auth;
 		const profile = U.Space.getProfile();
 		const participant = U.Space.getParticipant() || profile;
 		const param = keyboard.getMatch().params;
@@ -53,7 +52,7 @@ const SidebarSettingsIndex = observer(class SidebarSettingsIndex extends React.C
 				return <ItemSection {...item} />;
 			};
 			if (item.isDiv) {
-				return <div />
+				return <div />;
 			};
 
 			const cn = [ 'item' ];
@@ -91,16 +90,6 @@ const SidebarSettingsIndex = observer(class SidebarSettingsIndex extends React.C
 			} else {
 				icon = <Icon className={`settings-${item.icon || item.id}`} />;
 				name = item.name;
-			};
-
-			if (item.id == 'membership') {
-				if (!membership.isNone) {
-					const tierItem = U.Data.getMembershipTier(membership.tier);
-
-					caption = <div className="caption">{tierItem.name}</div>;
-				} else {
-					caption = <div className="caption join">{translate(`commonJoin`)}</div>;
-				};
 			};
 
 			if (item.alert) {
@@ -191,10 +180,6 @@ const SidebarSettingsIndex = observer(class SidebarSettingsIndex extends React.C
 
 	componentDidMount () {
 		this.setCache();
-
-		if (!this.isSpace()) {
-			Onboarding.start('membership', false);
-		};
 	};
 
 	componentDidUpdate () {
@@ -269,15 +254,14 @@ const SidebarSettingsIndex = observer(class SidebarSettingsIndex extends React.C
 			{
 				id: 'vaultSettings', name: translate('popupSettingsAccountAndKeyTitle'), children: [
 					{ id: 'phrase', name: translate('popupSettingsPhraseTitle'), subPages: [ 'delete' ] },
-					this.withMembership() ? { id: 'membership', icon: 'membership', name: translate('popupSettingsMembershipTitle1') } : null
-				].filter(it => it),
+				],
 			},
 			{
 				id: 'dataManagement', name: translate('popupSettingsDataManagementTitle'), children: [
 					{ id: 'dataIndex', name: translate('popupSettingsLocalStorageTitle'), icon: 'storage' },
 					{ id: 'spaceList', name: translate('popupSettingsSpacesListTitle'), icon: 'spaces' },
 					{ id: 'dataPublish', name: translate('popupSettingsDataManagementDataPublishTitle'), icon: 'sites' },
-					{ id: 'api', name: translate('popupSettingsApiTitle'), icon: 'api'  },
+					{ id: 'api', name: translate('popupSettingsApiTitle'), icon: 'api' },
 				]
 			}
 		];
@@ -318,10 +302,6 @@ const SidebarSettingsIndex = observer(class SidebarSettingsIndex extends React.C
 			return HEIGHT_ACCOUNT;
 		};
 		return HEIGHT_ITEM;
-	};
-
-	withMembership () {
-		return S.Common.isOnline && U.Data.isAnytypeNetwork();
 	};
 
 	onClick (item) {

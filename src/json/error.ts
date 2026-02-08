@@ -35,14 +35,6 @@ export default {
             URL_ALREADY_TAKEN:		 409,
 		},
 
-		SpaceInviteView: {
-			INVITE_NOT_FOUND: 		101,
-			SPACE_IS_DELETED:		103,
-		},
-
-		SpaceJoin: {
-			SPACE_LIMIT_REACHED:	106,
-		},
 	},
 
 	'Error: net::ERR_TIMED_OUT': 'Network time-out',

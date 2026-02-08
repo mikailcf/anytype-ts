@@ -599,31 +599,6 @@ export const MembershipCodeGetInfo = (response: Rpc.Membership.CodeGetInfo.Respo
 	};
 };
 
-export const SpaceInviteGenerate = (response: Rpc.Space.InviteGenerate.Response) => {
-	return {
-		inviteCid: response.getInvitecid(),
-		inviteKey: response.getInvitefilekey(),
-	};
-};
-
-export const SpaceInviteGetCurrent = (response: Rpc.Space.InviteGetCurrent.Response) => {
-	return {
-		inviteCid: response.getInvitecid(),
-		inviteKey: response.getInvitefilekey(),
-		inviteType: response.getInvitetype(),
-		permissions: response.getPermissions(),
-	};
-};
-
-export const SpaceInviteView = (response: Rpc.Space.InviteView.Response) => {
-	return {
-		spaceName: response.getSpacename(),
-		creatorName: response.getCreatorname(),
-		spaceId: response.getSpaceid(),
-		inviteType: response.getInvitetype(),
-	};
-};
-
 export const SpaceSetOrder = (response: Rpc.Space.SetOrder.Response) => {
 	return {
 		list: response.getSpacevieworderList() || [],

@@ -393,14 +393,9 @@ class UtilSpace {
 	};
 
 	/**
-	 * Gets an invite by ID and calls a callback with the result.
-	 * @param {string} id - The invite ID.
-	 * @param {(cid: string, key: string, inviteType: I.InviteType) => void} callBack - Callback function.
+	 * No-op: invite features removed in offline-only mode.
 	 */
 	getInvite (id: string, callBack: (cid: string, key: string, inviteType: I.InviteType, permissions: I.ParticipantPermissions) => void) {
-		C.SpaceInviteGetCurrent(id, (message: any) => {
-			callBack(message.inviteCid, message.inviteKey, message.inviteType, message.permissions);
-		});
 	};
 
 	/**

@@ -921,38 +921,9 @@ class Action {
 	};
 
 	/**
-	 * Opens a confirmation popup to revoke a space invite link.
-	 * @param {string} spaceId - The space ID.
-	 * @param {function} [callBack] - Optional callback after revocation.
+	 * No-op: invite features removed in offline-only mode.
 	 */
 	inviteRevoke (spaceId: string, callBack?: () => void) {
-		S.Popup.open('confirm', {
-			data: {
-				title: translate('popupConfirmRevokeLinkTitle'),
-				text: translate('popupConfirmRevokeLinkText'),
-				textConfirm: translate('popupConfirmRevokeLinkConfirm'),
-				colorConfirm: 'red',
-				noCloseOnConfirm: true,
-				onConfirm: () => {
-					C.SpaceInviteRevoke(spaceId, (message: any) => {
-						if (message.error.code) {
-							S.Popup.updateData('confirm', { error: message.error.description });
-							return;
-						};
-
-						if (callBack) {
-							callBack();
-						};
-
-						Preview.toastShow({ text: translate('toastInviteRevoke') });
-						S.Popup.close('confirm');
-						analytics.event('RevokeShareLink');
-					});
-				},
-			},
-		});
-
-		analytics.event('ScreenRevokeShareLink');
 	};
 
 	/**

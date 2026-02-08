@@ -122,8 +122,8 @@
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Done. Removed all 13 Space sharing commands from command.ts, 3 response handlers from response.ts. Made Action.inviteRevoke and U.Space.getInvite no-ops. Removed SpaceMakeShareable/SpaceInviteGenerate from space/create.tsx. Stubbed share/members.tsx. Cleaned up error.ts and dispatcher.ts. Kept NotificationList/NotificationReply (used for import/export/gallery notifications)."
     },
     {
       "id": "US-009",

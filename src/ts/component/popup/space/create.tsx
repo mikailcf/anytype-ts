@@ -105,25 +105,8 @@ const PopupSpaceCreate = observer(forwardRef<{}, I.Popup>(({ param = {}, close }
 					return;
 				};
 
-				U.Router.switchSpace(message.objectId, '', true, { 
+				U.Router.switchSpace(message.objectId, '', true, {
 					onRouteChange: () => {
-						if (isChatSpace) {
-							C.SpaceMakeShareable(S.Common.space, (message: any) => {
-								if (message.error.code) {
-									return;
-								};
-
-								C.SpaceInviteGenerate(S.Common.space, I.InviteType.WithoutApprove, I.ParticipantPermissions.Writer, (message) => {
-									if (message.error) {
-										return;
-									};
-
-									analytics.event('ShareSpace');
-									analytics.event('ClickShareSpaceNewLink', { type: I.InviteLinkType.Editor });
-								});
-							});
-						};
-
 						if (withImport) {
 							close(() => U.Object.openRoute({ id: 'importIndex', layout: I.ObjectLayout.Settings }));
 						} else 

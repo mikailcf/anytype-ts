@@ -96,5 +96,29 @@
   - page/main/object.tsx has a redirect to invite page when cid/key params present - needs to redirect to dashboard in offline mode
   - The help menu has a 'share' item that opens the share popup (share the Anytype app link) - distinct from space sharing
   - Space settings index has getButtons() that returns invite/copyLink/qr buttons based on cid/key state
+- NotificationList/NotificationReply are used for general notifications (import/export/gallery), not just sharing - keep them
+- Action.inviteRevoke is a wrapper that calls C.SpaceInviteRevoke - make it a no-op when removing the command
+- U.Space.getInvite wraps C.SpaceInviteGetCurrent - make it a no-op when removing the command
+- share/members.tsx uses C.SpaceRequestDecline, C.SpaceParticipantRemove, C.SpaceRequestApprove, C.SpaceParticipantPermissionsChange - must be stubbed even though unreachable
+- Space create popup auto-shares chat spaces via C.SpaceMakeShareable + C.SpaceInviteGenerate - remove for offline mode
+
+---
+
+## 2026-02-08 - US-008
+- What was implemented: Removed all 13 space sharing/invite gRPC commands and their references
+- Files changed:
+  - src/ts/lib/api/command.ts - Removed SpaceInviteGenerate, SpaceInviteChange, SpaceInviteView, SpaceInviteRevoke, SpaceInviteGetCurrent, SpaceStopSharing, SpaceMakeShareable, SpaceJoin, SpaceJoinCancel, SpaceRequestApprove, SpaceRequestDecline, SpaceParticipantPermissionsChange, SpaceParticipantRemove
+  - src/ts/lib/api/response.ts - Removed SpaceInviteGenerate, SpaceInviteGetCurrent, SpaceInviteView response handlers
+  - src/ts/lib/action.ts - Made inviteRevoke a no-op
+  - src/ts/lib/util/space.ts - Made getInvite a no-op
+  - src/ts/component/popup/space/create.tsx - Removed isChatSpace auto-sharing (SpaceMakeShareable + SpaceInviteGenerate)
+  - src/ts/component/page/main/settings/space/share/members.tsx - Stubbed to return null
+  - src/ts/lib/api/dispatcher.ts - Removed SpaceInviteGetCurrent from SKIP_SENTRY_ERRORS
+  - src/json/error.ts - Removed SpaceInviteView and SpaceJoin error codes
+- **Learnings for future iterations:**
+  - NotificationList and NotificationReply are used for general notifications (import/export/gallery), not just sharing - don't remove them
+  - The chat space creation flow auto-shares via SpaceMakeShareable + SpaceInviteGenerate - needs to be removed for offline-only
+  - Even unreachable components like share/members.tsx must be stubbed if they reference removed exports, because TypeScript still checks them
+  - Response handlers in response.ts must also be removed when commands are removed
 
 ---

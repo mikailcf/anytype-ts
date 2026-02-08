@@ -1,0 +1,109 @@
+# Ralph Progress Log
+Started: Sat Feb  7 20:54:26 -03 2026
+
+## Codebase Patterns
+- NetworkMode enum is in src/ts/interface/common.ts: Default=0, Local=1, Custom=2
+- Network config is accessed via S.Auth.networkConfig
+- AccountCreate and AccountSelect are in src/ts/lib/api/command.ts
+- Onboarding popup is at src/ts/component/popup/settings/onboarding.tsx
+- Auth pages are in src/ts/component/page/auth/
+- Settings sidebar is at src/ts/component/sidebar/page/settings/index.tsx - uses getAppSettings() for app settings and getSpaceSettings() for space settings
+- Settings page routes are in src/ts/component/page/main/settings/index.tsx - Components map defines which page ID maps to which component
+
+---
+
+## 2026-02-07 - US-001
+- What was implemented:
+  - Hardcoded networkConfig in store/auth.ts to always return { mode: I.NetworkMode.Local, path: '' }
+  - Made networkConfigSet a no-op since network mode is now fixed
+  - Updated accountCreate in lib/util/data.ts to explicitly use NetworkMode.Local
+  - Updated all AccountSelect calls (app.tsx, action.ts, setup.tsx, login.tsx, extension/lib/util.ts) to use NetworkMode.Local
+  - Removed network mode selector from onboarding popup, simplified to only handle storage path changes
+- Files changed:
+  - src/ts/store/auth.ts
+  - src/ts/lib/util/data.ts
+  - src/ts/lib/action.ts
+  - src/ts/app.tsx
+  - src/ts/component/page/auth/setup.tsx
+  - src/ts/component/page/auth/login.tsx
+  - src/ts/component/popup/settings/onboarding.tsx
+  - extension/lib/util.ts
+- **Learnings for future iterations:**
+  - Pre-existing typecheck errors exist in node_modules/ and dist/ directories - these are unrelated to source changes
+  - AccountSelect calls are spread across multiple files - search with `grep AccountSelect` to find all
+  - The electron/js/server.js doesn't actually pass NetworkMode when spawning middleware (it just spawns the binary with ports)
+---
+
+## 2026-02-07 - US-002
+- What was implemented:
+  - Removed membership page from settings index Components map and import
+  - Removed 'Membership' item from settings sidebar in getAppSettings()
+  - Removed membership caption logic that showed tier status
+  - Removed withMembership() method that checked network/online status
+  - Removed membership onboarding trigger from componentDidMount()
+  - Removed membership incentive banner from help menu
+- Files changed:
+  - src/ts/component/page/main/settings/index.tsx
+  - src/ts/component/sidebar/page/settings/index.tsx
+  - src/ts/component/menu/help.tsx
+- **Learnings for future iterations:**
+  - The membership.tsx file still exists but is now unreachable - could be deleted entirely in a cleanup pass
+  - Settings pages have two contexts: app settings (getAppSettings) and space settings (getSpaceSettings)
+  - Help menu had an incentive banner (ShareTooltip) linking to membership page - removed
+  - Onboarding.start('membership', false) was triggering membership onboarding on settings page load
+---
+
+## 2026-02-07 - US-004
+- What was implemented:
+  - Removed all Membership* commands from lib/api/command.ts (MembershipGetStatus, MembershipGetTiers, MembershipIsNameValid, MembershipRegisterPaymentRequest, MembershipGetPortalLinkUrl, MembershipGetVerificationEmail, MembershipVerifyEmailCode, MembershipFinalize, MembershipCodeGetInfo, MembershipCodeRedeem)
+  - Stubbed membershipSet and membershipUpdate as no-ops in store/auth.ts
+  - Removed MembershipUpdate event handler from dispatcher.ts
+  - Stubbed getMembershipStatus and getMembershipTiers as no-ops in data.ts
+  - Gutted all popup/membership files (activation.tsx, finalization.tsx, current.tsx, free.tsx, paid.tsx, success.tsx) to return null
+  - Simplified email stage in onboard.tsx to skip email verification entirely
+- Files changed:
+  - src/ts/lib/api/command.ts
+  - src/ts/store/auth.ts
+  - src/ts/lib/api/dispatcher.ts
+  - src/ts/lib/util/data.ts
+  - src/ts/component/popup/membership/activation.tsx
+  - src/ts/component/popup/membership/finalization.tsx
+  - src/ts/component/popup/page/membership/current.tsx
+  - src/ts/component/popup/page/membership/free.tsx
+  - src/ts/component/popup/page/membership/paid.tsx
+  - src/ts/component/popup/page/membership/success.tsx
+  - src/ts/component/page/auth/onboard.tsx
+- **Learnings for future iterations:**
+  - Membership popup files in component/popup/membership/ and component/popup/page/membership/ are now stubs but still exist - referenced by parent popup but unreachable via UI
+  - The onboard.tsx email stage (Stage.Email) was already guarded by isAnytypeNetwork() && isOnline, so in offline-only mode the email verification was never reached, but the code still referenced C.MembershipGetVerificationEmail
+  - Stubbing methods as no-ops (instead of deleting) is cleaner when callers exist but the functionality should be disabled
+---
+
+## 2026-02-08 - US-009
+- What was implemented:
+  - Removed Sync widget from sidebar header in widget.tsx (replaced with empty div)
+  - Stubbed component/util/sync.tsx to return null
+  - Stubbed component/menu/syncStatus.tsx to return null
+  - Stubbed component/menu/syncStatus/info.tsx to return null
+  - Removed notSyncedCounter badge from spaceStorage item in settings sidebar
+  - Removed getSyncStatus() call from settings sidebar getSpaceSettings()
+  - Removed "not synced" file manager section from storage.tsx
+  - Removed notSynced refManager from storage.tsx
+  - Removed fileManagerNotSynced subscription cleanup from storage.tsx
+  - Cleaned up notSyncedCounter references in upsell/storage.tsx and upsell/index.tsx
+- Files changed:
+  - src/ts/component/sidebar/page/widget.tsx
+  - src/ts/component/util/sync.tsx
+  - src/ts/component/menu/syncStatus.tsx
+  - src/ts/component/menu/syncStatus/info.tsx
+  - src/ts/component/sidebar/page/settings/index.tsx
+  - src/ts/component/page/main/settings/space/storage.tsx
+  - src/ts/component/util/upsell/storage.tsx
+  - src/ts/component/util/upsell/index.tsx
+- **Learnings for future iterations:**
+  - The Sync widget is rendered in sidebar/page/widget.tsx header, not in a separate header component
+  - syncStatus and syncStatusInfo menus are registered in component/menu/index.tsx - kept registrations but stubbed the components
+  - UpsellBanner (upsell/index.tsx) is already gated by U.Data.isAnytypeNetwork() so won't render in offline mode, but cleaned up notSyncedCounter refs anyway
+  - The storage page (settings/space/storage.tsx) has two file managers: synced and notSynced - removed the notSynced one
+  - S.Auth.getSyncStatus() is used in multiple places - settings sidebar, storage page, and the sync widget itself
+---

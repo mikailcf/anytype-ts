@@ -2,7 +2,7 @@ import * as React from 'react';
 import raf from 'raf';
 import { observer } from 'mobx-react';
 import { arrayMove } from '@dnd-kit/sortable';
-import { Button, Icon, Widget, DropTarget, Label, IconObject, ObjectName, Sync } from 'Component';
+import { Button, Icon, Widget, DropTarget, Label, IconObject, ObjectName } from 'Component';
 import { I, C, M, S, U, J, keyboard, analytics, translate, scrollOnMove, Preview, sidebar, Storage, Dataview } from 'Lib';
 
 type State = {
@@ -245,9 +245,7 @@ const SidebarPageWidget = observer(class SidebarPageWidget extends React.Compone
 		return (
 			<>
 				<div id="head" className="head">
-					<div className="side left">
-						<Sync id="headerSync" onClick={this.onSync} />
-					</div>
+					<div className="side left" />
 					<div className="side right">
 						<Icon className="search withBackground" onClick={() => keyboard.onSearchPopup(analytics.route.widget)} />
 					</div>
@@ -322,14 +320,7 @@ const SidebarPageWidget = observer(class SidebarPageWidget extends React.Compone
 	};
 
 	onSync = () => {
-		S.Menu.closeAllForced(null, () => {
-			S.Menu.open('syncStatus', {
-				element: '#headerSync',
-				offsetY: 4,
-				classNameWrap: 'fixed fromSidebar',
-				subIds: J.Menu.syncStatus,
-			});
-		});
+		// No-op: sync status removed in offline-only mode
 	};
 
 	onBack = () => {

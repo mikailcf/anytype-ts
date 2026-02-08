@@ -25,7 +25,6 @@ const UpsellStorage = observer(forwardRef<{}, Props>(({
 	const { spaceStorage } = S.Common;
 	const { bytesLimit } = spaceStorage;
 	const bytesUsed = U.Common.calculateStorageUsage();
-	const notSyncedCounter = S.Auth.getNotSynced().total;
 	const usagePercent = bytesUsed / bytesLimit * 100;
 	const roundedUsagePercent = Math.ceil(usagePercent / 5) * 5;
 	const output = usagePercent < 90 ? roundedUsagePercent : Math.round(usagePercent);
@@ -36,9 +35,6 @@ const UpsellStorage = observer(forwardRef<{}, Props>(({
 	if (isRed) {
 		cn.push('isRed');
 
-		if (notSyncedCounter) {
-			incentiveText = U.Common.sprintf(translate('upsellBannerStorageWithNotSyncedIncentiveText'), notSyncedCounter, U.Common.plural(notSyncedCounter, translate('pluralLCFile')));
-		};
 		upsellText = translate('upsellBannerStorageFullUpsellText');
 	} else {
 		const periodLabel = U.Common.getMembershipPeriodLabel(tier);

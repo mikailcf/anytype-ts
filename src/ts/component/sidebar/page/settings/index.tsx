@@ -205,7 +205,6 @@ const SidebarSettingsIndex = observer(class SidebarSettingsIndex extends React.C
 	};
 
 	getSpaceSettings () {
-		const { error, notSyncedCounter } = S.Auth.getSyncStatus();
 		const space = U.Space.getSpaceview();
 		const isEntrySpace = space.spaceAccessType == I.SpaceType.Personal;
 		const canWrite = U.Space.canMyParticipantWrite();
@@ -227,7 +226,7 @@ const SidebarSettingsIndex = observer(class SidebarSettingsIndex extends React.C
 				id: 'common', name: translate('commonPreferences'),
 				children: [
 					{ id: 'spaceIndex', icon: 'space', name: translate('pageSettingsSpaceGeneral') },
-					{ id: 'spaceStorage', icon: 'storage', name: translate('pageSettingsSpaceRemoteStorage'), alert: notSyncedCounter },
+					{ id: 'spaceStorage', icon: 'storage', name: translate('pageSettingsSpaceRemoteStorage') },
 					{ id: 'archive', icon: 'bin', name: translate('commonBin') },
 				].filter(it => it),
 			},

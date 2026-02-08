@@ -46,11 +46,10 @@ const UpsellBanner = observer(forwardRef<{}, Props>(({
 				const { spaceStorage } = S.Common;
 				const { bytesLimit } = spaceStorage;
 				const bytesUsed = U.Common.calculateStorageUsage();
-				const notSyncedCounter = S.Auth.getNotSynced().total;
 				const usagePercent = bytesUsed / bytesLimit * 100;
 
 				isShown = usagePercent > 55;
-				isRed = usagePercent >= 100 || !!notSyncedCounter;
+				isRed = usagePercent >= 100;
 				break;
 			};
 

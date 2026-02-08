@@ -8,7 +8,6 @@ const PageMainSettingsStorage = observer(class PageMainSettingsStorage extends R
 	node = null;
 	refManagers = {
 		synced: null,
-		notSynced: null,
 	};
 
 	constructor (props: I.PageSettingsComponent) {
@@ -21,7 +20,6 @@ const PageMainSettingsStorage = observer(class PageMainSettingsStorage extends R
 	render () {
 		const { spaceStorage } = S.Common;
 		const { localUsage, bytesLimit } = spaceStorage;
-		const { notSyncedCounter } = S.Auth.getSyncStatus();
 		const spaces = U.Space.getList();
 		const currentSpace = U.Space.getSpaceview();
 		const usageCn = [ 'item', 'usageWrapper' ];
@@ -63,7 +61,7 @@ const PageMainSettingsStorage = observer(class PageMainSettingsStorage extends R
 		});
 
 		const usagePercent = bytesUsed / bytesLimit;
-		const isRed = (usagePercent >= 100) || notSyncedCounter;
+		const isRed = usagePercent >= 100;
 		const legend = chunks.concat([ { name: translate('popupSettingsSpaceStorageProgressBarFree'), usage: bytesLimit - bytesUsed, className: 'free' } ]);
 
 		if (isRed) {
@@ -127,15 +125,6 @@ const PageMainSettingsStorage = observer(class PageMainSettingsStorage extends R
 					</div>
 				</div>
 
-				{notSyncedCounter && canWrite ? (
-					<Manager
-						refId={'notSynced'}
-						subId={J.Constant.subId.fileManagerNotSynced}
-						title={translate('pageSettingsSpaceNotSyncedFiles')}
-						filters={[ I.SyncStatusObject.Error ]}
-					/>
-				) : ''}
-
 				{canWrite ? (
 					<Manager
 						refId={'synced'}
@@ -149,7 +138,7 @@ const PageMainSettingsStorage = observer(class PageMainSettingsStorage extends R
 	};
 
 	componentWillUnmount () {
-		U.Subscription.destroyList([ J.Constant.subId.fileManagerSynced, J.Constant.subId.fileManagerNotSynced ]);
+		U.Subscription.destroyList([ J.Constant.subId.fileManagerSynced ]);
 	};
 
 	onUpgrade () {

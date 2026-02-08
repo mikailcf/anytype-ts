@@ -138,8 +138,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 9,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Done. Removed Sync widget from sidebar header (widget.tsx). Stubbed sync.tsx, syncStatus.tsx, and syncStatus/info.tsx to return null. Removed notSyncedCounter badge from settings sidebar spaceStorage item. Removed notSynced file manager section from storage.tsx. Cleaned up notSyncedCounter references in upsell/storage.tsx and upsell/index.tsx."
     },
     {
       "id": "US-010",

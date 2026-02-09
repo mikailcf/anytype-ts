@@ -1,6 +1,6 @@
 import React, { FC, useState, useRef, useEffect, useCallback } from 'react';
 import * as hs from 'history';
-import * as Sentry from '@sentry/browser';
+
 import $ from 'jquery';
 import raf from 'raf';
 import { RouteComponentProps } from 'react-router';
@@ -94,27 +94,6 @@ enableLogging({
 */
 
 
-Sentry.init({
-	release: electron.version.app,
-	environment: isPackaged ? 'production' : 'development',
-	dsn: SENTRY_DSN,
-	maxBreadcrumbs: 0,
-	beforeSend: (e: any) => {
-		e.request.url = '';
-		return e;
-	},
-	integrations: [
-		new Sentry.Integrations.GlobalHandlers({
-			onerror: true,
-			onunhandledrejection: true,
-		}),
-	],
-});
-
-Sentry.setContext('info', {
-	network: I.NetworkMode[S.Auth.networkConfig?.mode],
-	isPackaged: isPackaged,
-});
 
 const RoutePage: FC<RouteComponentProps> = (props) => {
 
@@ -216,8 +195,6 @@ const App: FC = () => {
 		S.Common.setLeftSidebarState('vault', '');
 
 		Action.checkDefaultSpellingLang();
-
-		analytics.init();
 
 		if (redirect) {
 			Storage.delete('redirect');

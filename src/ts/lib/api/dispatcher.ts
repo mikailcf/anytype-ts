@@ -1,4 +1,4 @@
-import * as Sentry from '@sentry/browser';
+
 import $ from 'jquery';
 import { arrayMove } from '@dnd-kit/sortable';
 import { observable, set } from 'mobx';
@@ -25,7 +25,7 @@ const SORT_IDS = [
 	'BlockDataviewViewDelete',
 ];
 const SKIP_IDS = [ 'BlockSetCarriage' ];
-const SKIP_SENTRY_ERRORS = [ 'LinkPreview', 'BlockTextSetText', 'FileSpaceUsage' ];
+
 
 class Dispatcher {
 
@@ -336,7 +336,6 @@ class Dispatcher {
 
 					if (!isSync && (id == focus.state.focused)) {
 						console.error('[Dispatcher] BlockSetText: focus', id);
-						Sentry.captureMessage('[Dispatcher] BlockSetText: focus');
 					};
 
 					const content: any = {};
@@ -1319,12 +1318,6 @@ class Dispatcher {
 
 				if (message.error.code) {
 					console.error('Error', type, 'code:', message.error.code, 'description:', message.error.description);
-
-					if (!SKIP_SENTRY_ERRORS.includes(type)) {
-						Sentry.captureMessage(`${type}: code: ${code} msg: ${message.error.description}`);
-						analytics.event('Exception', { method: type, code: message.error.code });
-					};
-
 					message.error.description = U.Common.translateError(type, message.error);
 				};
 

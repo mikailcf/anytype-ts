@@ -255,10 +255,9 @@ class MenuManager {
 			},
 		];
 
-		const flags = { 
-			ui: Util.translate('electronMenuFlagInterface'), 
-			hiddenObject: Util.translate('electronMenuFlagHidden'), 
-			analytics: Util.translate('electronMenuFlagAnalytics'),
+		const flags = {
+			ui: Util.translate('electronMenuFlagInterface'),
+			hiddenObject: Util.translate('electronMenuFlagHidden'),
 		};
 
 		const flagsMw = {

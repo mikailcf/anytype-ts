@@ -13,6 +13,9 @@
 - Join notification handling is in notification/index.tsx case I.NotificationType.Join
 - U.Common.onInviteRequest() and U.Menu.inviteContext() are utility wrappers for invite UI
 - PopupSpaceJoinByLink routes to /main/invite/ page - both need to be addressed together
+- Analytics is in src/ts/lib/analytics.ts - uses Amplitude, ~313 event calls across ~147 files. Gut the class to no-ops rather than touching callers. Keep the route object (used as string constants)
+- Sentry is initialized in app.tsx with DSN from rspack DefinePlugin, also used in dispatcher.ts and data.ts
+- Electron debug flags are in electron/js/menu.js in the `flags` object
 
 ---
 
@@ -104,6 +107,25 @@
 
 ---
 
+## 2026-02-08 - US-010
+- What was implemented: Removed sync state tracking from auth store and removed DeviceList, DebugNetCheck, AccountRecover gRPC commands
+- Files changed:
+  - src/ts/store/auth.ts - Removed syncStatusMap field, made syncStatusUpdate a no-op, made getSyncStatus return default offline status, made getNotSynced return zero, removed syncStatusMap.clear() from clearAll, cleaned up unused intercept import
+  - src/ts/lib/api/command.ts - Removed AccountRecover, DebugNetCheck, DeviceList commands
+  - src/ts/lib/api/response.ts - Removed DebugNetCheck, DeviceList response handlers
+  - src/ts/lib/api/dispatcher.ts - Made SpaceSyncStatusUpdate/P2PStatusUpdate handler a no-op
+  - src/ts/lib/keyboard.ts - Made debugNet keyboard shortcut handler a no-op
+  - src/ts/component/page/auth/login.tsx - Replaced C.AccountRecover with stored accountId lookup for offline-only login
+- **Learnings for future iterations:**
+  - AccountRecover is used in login.tsx for network-based account discovery after WalletRecover - in offline mode, use Storage.get('accountId') instead
+  - The login flow works: WalletRecover → createSession → accountAdd with stored ID → select() picks up via useEffect → AccountSelect completes login
+  - DebugNetCheck is only called from keyboard.ts debugNet shortcut handler
+  - DeviceList had no callers in the codebase - was likely intended for future P2P device management UI
+  - getSyncStatus and getNotSynced callers were already removed in US-009, so making them return defaults is safe
+  - syncStatusUpdate is called from dispatcher.ts for SpaceSyncStatusUpdate and P2PStatusUpdate events - made it a no-op
+
+---
+
 ## 2026-02-08 - US-008
 - What was implemented: Removed all 13 space sharing/invite gRPC commands and their references
 - Files changed:
@@ -120,5 +142,26 @@
   - The chat space creation flow auto-shares via SpaceMakeShareable + SpaceInviteGenerate - needs to be removed for offline-only
   - Even unreachable components like share/members.tsx must be stubbed if they reference removed exports, because TypeScript still checks them
   - Response handlers in response.ts must also be removed when commands are removed
+
+---
+
+## 2026-02-08 - US-011
+- What was implemented: Removed all analytics and telemetry (Amplitude + Sentry)
+- Files changed:
+  - src/ts/lib/analytics.ts - Gutted entire class: removed Amplitude import, made all methods no-ops (init, event, profile, setProperty, setContext, setTier, setVersion, stackAdd, stackSend, log, etc.), kept route object and typeMapper/embedType/networkType stubs for callers
+  - src/ts/app.tsx - Removed Sentry import, Sentry.init() block, Sentry.setContext() call, analytics.init() call
+  - src/ts/lib/api/dispatcher.ts - Removed Sentry import, Sentry.captureMessage calls, SKIP_SENTRY_ERRORS constant, analytics Exception event
+  - src/ts/lib/util/data.ts - Removed Sentry import and Sentry.setUser() call
+  - src/json/constant.ts - Cleared amplitude API key and sentry DSN to empty strings
+  - rspack.config.js - Cleared SENTRY_DSN default to empty string
+  - src/ts/global.d.ts - Removed SENTRY_DSN global declaration
+  - electron/js/menu.js - Removed analytics debug flag from flags menu
+- **Learnings for future iterations:**
+  - Analytics has ~313 references across ~147 files - gutting the analytics class to no-ops is far safer than touching every caller
+  - The analytics module exports a route object that's used as string constants throughout the codebase - must keep this even when disabling tracking
+  - analytics.typeMapper() is called from widget/index.tsx for data passed to event() - must keep stub even though event is a no-op
+  - Sentry is used in 3 files: app.tsx (init), dispatcher.ts (captureMessage for errors), data.ts (setUser)
+  - SENTRY_DSN is injected via rspack DefinePlugin with a default fallback - clear both the env var default and constant.ts
+  - The analytics debug flag in Electron menu controls config.debug.analytics which is read by analytics.debug() - removing the flag is cleaner than leaving a dead toggle
 
 ---

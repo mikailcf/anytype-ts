@@ -153,8 +153,8 @@
         "Typecheck passes"
       ],
       "priority": 10,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Done. Removed syncStatusMap field and made syncStatusUpdate a no-op. Made getSyncStatus return default offline status and getNotSynced return zero. Removed AccountRecover, DebugNetCheck, DeviceList from command.ts and response.ts. Made dispatcher sync status handler a no-op. Made keyboard debugNet a no-op. Replaced AccountRecover in login.tsx with stored accountId lookup."
     },
     {
       "id": "US-011",
@@ -168,8 +168,8 @@
         "Typecheck passes"
       ],
       "priority": 11,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Done. Gutted analytics.ts to make all methods no-ops, removed Amplitude import. Removed Sentry initialization from app.tsx, dispatcher.ts, and data.ts. Cleared amplitude API key and Sentry DSN from constants. Removed SENTRY_DSN global declaration. Removed analytics debug flag from Electron menu. Emptied SENTRY_DSN default in rspack config."
     },
     {
       "id": "US-012",

@@ -1,6 +1,6 @@
 export default {
-	sentry:				 'https://44e6df81644c4e36b21b1dbea62b8a1a@sentry.anytype.io/3',
-	amplitude:			 '1ba981d1a9afb8af8c81847ef3383a20',
+	sentry:				 '',
+	amplitude:			 '',
 	googleMaps:			 'AIzaSyAgXu3wCb6mPJv4wNWKe2E3YycaYuqFm9o',
 	protocol:			 'anytype',
 	appName:			 'Anytype',

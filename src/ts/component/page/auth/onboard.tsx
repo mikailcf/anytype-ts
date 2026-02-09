@@ -1,13 +1,12 @@
-import React, { forwardRef, useRef, useState, useEffect, KeyboardEvent } from 'react';
+import React, { forwardRef, useRef, useState, useEffect } from 'react';
 import { observer } from 'mobx-react';
-import { Frame, Title, Label, Button, Icon, Input, Error, Header, Phrase } from 'Component';
+import { Frame, Title, Label, Button, Icon, Error, Header, Phrase } from 'Component';
 import { I, C, S, U, translate, Animation, analytics, keyboard, Renderer, Onboarding, Storage, sidebar } from 'Lib';
 
 enum Stage {
 	Phrase 		= 0,
-	Email	 	= 1,
-	Persona 	= 2,
-	UseCase		= 3,
+	Persona 	= 1,
+	UseCase		= 2,
 };
 
 const PageAuthOnboard = observer(forwardRef<{}, I.PageComponent>((props, ref) => {
@@ -18,7 +17,6 @@ const PageAuthOnboard = observer(forwardRef<{}, I.PageComponent>((props, ref) =>
 	const frameRef = useRef(null);
 	const nextRef = useRef(null);
 	const phraseRef = useRef(null);
-	const emailRef = useRef(null);
 	const shuffled = useRef({ role: null, purpose: null });
 	const selected = useRef({ role: null, purpose: null });
 	const [ stage, setStage ] = useState(Stage.Phrase);
@@ -91,12 +89,6 @@ const PageAuthOnboard = observer(forwardRef<{}, I.PageComponent>((props, ref) =>
 				break;
 			};
 
-			case Stage.Email: {
-				// Offline-only mode: skip email verification entirely
-				Animation.from(() => setStage(stage + 1));
-				break;
-			};
-
 			case Stage.Persona: {
 				Animation.from(() => setStage(stage + 1));
 
@@ -149,12 +141,6 @@ const PageAuthOnboard = observer(forwardRef<{}, I.PageComponent>((props, ref) =>
 	const onLearnMore = () => {
 		S.Popup.open('phrase', {});
 		analytics.event('ClickOnboarding', { type: 'MoreInfo', step: Stage[stage] });
-	};
-
-	const onEmailKeyUp = (e: KeyboardEvent, v: string) => {
-		const isValid = U.Common.matchEmail(v);
-
-		$(nextRef.current?.getNode()).toggleClass('disabled', !isValid);
 	};
 
 	const shuffleItems = (stage: string) => {
@@ -246,30 +232,6 @@ const PageAuthOnboard = observer(forwardRef<{}, I.PageComponent>((props, ref) =>
 						</div>
 					) : ''}
 				</>
-			);
-			break;
-		};
-
-		case Stage.Email: {
-			cnb.push('disabled');
-
-			content = (
-				<div className="inputWrapper animation">
-					<Input
-						key="email"
-						ref={emailRef}
-						focusOnMount={true}
-						placeholder={translate('authOnboardEmailPlaceholder')}
-						maxLength={255}
-						onKeyUp={onEmailKeyUp}
-					/>
-				</div>
-			);
-
-			buttons = (
-				<div className="animation">
-					<Button ref={nextRef} className={cnb.join(' ')} text={translate('commonContinue')} color="accent" onClick={onForward} />
-				</div>
 			);
 			break;
 		};

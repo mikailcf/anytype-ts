@@ -19,6 +19,7 @@
 - Electron auto-update is managed by electron/js/update.js (UpdateManager) using electron-updater. It's used from: electron.js (init), api.js (API handlers), menu.js (menu items + tray), and app.tsx (IPC event handlers)
 - Update UI has two display points: vault sidebar (vault/update.tsx as ItemProgress) and ListBanner (list/banner.tsx)
 - The vault sidebar (vault.tsx) injects an update-progress item into the space list via getItems() when updateVersion or progress exists
+- **Browser testing:** Start heart server (`anytype-heart/dist/server`), then Electron (`ANYTYPE_USE_SIDE_SERVER=http://127.0.0.1:31008 npx electron . --remote-debugging-port=9222`). Must call `C.InitialSetParameters` before AccountCreate when using external server. Access internal modules via `webpackChunkanytype.push([['_'], {}, function(req) { __webpack_require__ = req; }])`
 
 ---
 
@@ -247,10 +248,13 @@
   - src/ts/component/page/auth/onboard.tsx - Added disclaimer Label below buttons on Phrase stage
   - src/scss/page/auth.scss - Added .label.disclaimer style in .stagePhrase (text-small, tertiary color, centered, 480px width)
   - tasks/prd.json - Marked US-016 as passing
+- **Browser verification:** Confirmed via Playwright CDP connection to Electron. Disclaimer text "This is an offline-only version of Anytype. Your data stays on this device and is never sent to the cloud." renders correctly below Skip button on Phrase stage, styled in tertiary color, centered. Screenshot saved.
 - **Learnings for future iterations:**
   - The auth SCSS already had a `.footer .disclaimer` style, but it's scoped to `.footer` — for the onboard page, add the disclaimer style inside `.stagePhrase`
   - The Label component accepts className — using "disclaimer animation" gives it the right class and entrance animation
   - Translation keys for onboarding follow the pattern `authOnboard{Stage}{Element}` (e.g., authOnboardPhraseDisclaimer)
   - The `@include text-small` mixin is available for smaller informational text in SCSS
+  - **Browser testing setup:** Start heart server (`/dist/server`), then Electron with `ANYTYPE_USE_SIDE_SERVER=http://127.0.0.1:31008 npx electron . --remote-debugging-port=9222`. Connect to CDP targets via `curl http://127.0.0.1:9222/json`, interact via node ws + `Runtime.evaluate`
+  - **Critical:** When using ANYTYPE_USE_SIDE_SERVER, must call `C.InitialSetParameters(platform, version, workDir, ...)` before AccountCreate — the external server doesn't receive this automatically. Access C module via webpack: `webpackChunkanytype.push([['_test_'], {}, function(req) { __webpack_require__ = req; }])` then iterate `__webpack_require__.m` to find module with `InitialSetParameters`
 
 ---

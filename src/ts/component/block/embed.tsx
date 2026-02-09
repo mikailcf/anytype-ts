@@ -56,7 +56,8 @@ const BlockEmbed = observer(class BlockEmbed extends React.Component<I.BlockComp
 	};
 
 	render () {
-		const { isOnline, theme } = S.Common;
+		const { theme } = S.Common;
+		const isOnline = navigator.onLine;
 		const { isShowing, isEditing } = this.state;
 		const { readonly, block } = this.props;
 		const { content, fields, hAlign } = block;
@@ -195,7 +196,7 @@ const BlockEmbed = observer(class BlockEmbed extends React.Component<I.BlockComp
 	};
 
 	rebind () {
-		const { isOnline } = S.Common;
+		const isOnline = navigator.onLine;
 		const { block, isPopup } = this.props;
 		const { processor } = block.content;
 		const { isEditing, isShowing } = this.state;

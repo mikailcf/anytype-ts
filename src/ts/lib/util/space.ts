@@ -329,7 +329,7 @@ class UtilSpace {
 	 * @returns {boolean} True if sharing is active, false otherwise.
 	 */
 	isShareActive () {
-		return S.Common.isOnline && !U.Data.isLocalNetwork();
+		return false;
 	};
 
 	/**
@@ -367,7 +367,7 @@ class UtilSpace {
 	 * @returns {string} The invite link.
 	 */
 	getInviteLink (cid: string, key: string) {
-		return U.Data.isAnytypeNetwork() ? U.Common.sprintf(J.Url.invite, cid, key) : `${J.Constant.protocol}://invite/?cid=${cid}&key=${key}`;
+		return `${J.Constant.protocol}://invite/?cid=${cid}&key=${key}`;
 	};
 
 	/**

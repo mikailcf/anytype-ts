@@ -42,23 +42,11 @@ class Keyboard {
 		
 		const win = $(window);
 
-		S.Common.isOnlineSet(navigator.onLine);
-
 		win.on('keydown.common', e => this.onKeyDown(e));
 		win.on('keyup.common', e => this.onKeyUp(e));
 		win.on('mousedown.common', e => this.onMouseDown(e));
 		win.on('scroll.common', () => this.onScroll());
 		win.on('mousemove.common', e => this.onMouseMove(e));
-
-		win.on('online.common offline.common', () => {
-			const { onLine } = navigator;
-
-			S.Common.isOnlineSet(onLine);
-
-			if (!S.Common.membershipTiers.length) {
-				U.Data.getMembershipTiers(false);
-			};
-		});
 
 		win.on('focus.common', () => {
 			S.Common.windowIsFocusedSet(true);

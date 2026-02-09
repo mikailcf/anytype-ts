@@ -912,27 +912,24 @@ class UtilData {
 	};
 
 	/**
-	 * Checks if the current network is Anytype Network.
-	 * @returns {boolean} True if Anytype Network.
+	 * Always false in offline-only mode.
 	 */
 	isAnytypeNetwork (): boolean {
-		return Object.values(J.Constant.networkId).includes(S.Auth.account?.info?.networkId);
+		return false;
 	};
 
 	/**
-	 * Checks if the current network is a development network.
-	 * @returns {boolean} True if development network.
+	 * Always false in offline-only mode.
 	 */
 	isDevelopmentNetwork (): boolean {
-		return S.Auth.account?.info?.networkId == J.Constant.networkId.development;
+		return false;
 	};
 
 	/**
-	 * Checks if the current network is a local network.
-	 * @returns {boolean} True if local network.
+	 * Always true in offline-only mode.
 	 */
 	isLocalNetwork (): boolean {
-		return !S.Auth.account?.info?.networkId;
+		return true;
 	};
 
 	/**

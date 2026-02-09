@@ -40,7 +40,6 @@ class CommonStore {
 	public linkStyleValue = null;
 	public dateFormatValue = null;
 	public timeFormatValue = null;
-	public isOnlineValue = false;
 	public updateVersionValue = '';
 	public leftSidebarStateValue = { page: '', subPage: '' };
 	public rightSidebarStateValue = { 
@@ -110,7 +109,6 @@ class CommonStore {
 			isFullScreen: observable,
 			fullscreenObjectValue: observable,
 			linkStyleValue: observable,
-			isOnlineValue: observable,
 			hideSidebarValue: observable,
 			spaceId: observable,
 			membershipTiersList: observable,
@@ -131,7 +129,6 @@ class CommonStore {
 			nativeTheme: computed,
 			membershipTiers: computed,
 			space: computed,
-			isOnline: computed,
 			showRelativeDates: computed,
 			dateFormat: computed,
 			timeFormat: computed,
@@ -151,7 +148,6 @@ class CommonStore {
 			linkStyleSet: action,
 			dateFormatSet: action,
 			timeFormatSet: action,
-			isOnlineSet: action,
 			membershipTiersListSet: action,
 			setLeftSidebarState: action,
 			setRightSidebarState: action,
@@ -301,10 +297,6 @@ class CommonStore {
 
 	get dataPath (): string {
 		return String(this.dataPathValue || '');
-	};
-
-	get isOnline (): boolean {
-		return Boolean(this.isOnlineValue);
 	};
 
 	get membershipTiers (): I.MembershipTier[] {
@@ -761,15 +753,6 @@ class CommonStore {
 		v = Number(v);
 		this.timeFormatValue = v;
 		Storage.set('timeFormat', v);
-	};
-
-	/**
-	 * Sets the online status value.
-	 * @param {boolean} v - The online status value.
-	 */
-	isOnlineSet (v: boolean) {
-		this.isOnlineValue = Boolean(v);
-		console.log('[Online status]:', v);
 	};
 
 	/**

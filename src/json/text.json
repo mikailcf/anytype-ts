@@ -585,9 +585,10 @@
 	"pageSettingsColorModeButtonSystem": "Auto Mode",
 
 	"pageSettingsSpaceGeneral": "General",
-	"pageSettingsSpaceRemoteStorage": "Remote Storage",
+	"pageSettingsSpaceRemoteStorage": "Storage",
 	"pageSettingsSpaceSyncedFiles": "Synced files",
 	"pageSettingsSpaceNotSyncedFiles": "Not synced files",
+	"pageSettingsSpaceStorageFiles": "Files",
 	"pageSettingsSpaceIntegrations": "Integrations",
 	"pageSettingsSpaceManageContent": "Content Model",
 
@@ -913,7 +914,7 @@
 
 	"popupSettingsSpaceIndexCollaborationTitle": "Collaboration",
 	"popupSettingsSpaceIndexManageSpaceTitle": "Space Preferences",
-	"popupSettingsSpaceIndexStorageText": "You can store your files on our encrypted backup node. If you reach the limit, files will be stoped syncing and be stored only locally.",
+	"popupSettingsSpaceIndexStorageText": "Your files are stored locally on this device.",
 	"popupSettingsSpaceIndexStorageManageFiles": "Manage files",
 	"popupSettingsSpaceIndexHomepageDescription": "Select an Object to show when you login",
 	"popupSettingsSpaceIndexImport": "Import to Space",

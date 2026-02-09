@@ -283,8 +283,8 @@
         "Verify in browser using playwright, starting the anytype-heart server based on Makefile on that project, and starting anytype-ts server based on Makefile on this project"
       ],
       "priority": 17,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Done. Renamed 'Remote Storage' to 'Storage' in text.json. Updated storage description to local-only text. Removed sync status filter from file list (show all files, not just synced). Renamed 'Synced files' to 'Files'. Removed onUpgrade method. Removed red usage warning (no remote limits to exceed). Removed syncStatusRelationKeys usage. UpsellBanner was already gutted in US-003/US-014."
     },
     {
       "id": "US-018",

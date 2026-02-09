@@ -1,20 +1,17 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
-import { Title, ListObjectManager, Label, Button, ProgressBar } from 'Component';
+import { Title, ListObjectManager, Label, ProgressBar } from 'Component';
 import { I, J, U, S, translate, Action, analytics } from 'Lib';
 
 const PageMainSettingsStorage = observer(class PageMainSettingsStorage extends React.Component<I.PageSettingsComponent, {}> {
 
 	node = null;
-	refManagers = {
-		synced: null,
-	};
+	refManager = null;
 
 	constructor (props: I.PageSettingsComponent) {
 		super(props);
 
 		this.onRemove = this.onRemove.bind(this);
-		this.onUpgrade = this.onUpgrade.bind(this);
 	};
 
 	render () {
@@ -22,7 +19,6 @@ const PageMainSettingsStorage = observer(class PageMainSettingsStorage extends R
 		const { localUsage, bytesLimit } = spaceStorage;
 		const spaces = U.Space.getList();
 		const currentSpace = U.Space.getSpaceview();
-		const usageCn = [ 'item', 'usageWrapper' ];
 		const canWrite = U.Space.canMyParticipantWrite();
 
 		const segments: any = {
@@ -57,64 +53,33 @@ const PageMainSettingsStorage = observer(class PageMainSettingsStorage extends R
 		const progressSegments = (chunks || []).map(chunk => {
 			const { name, usage, className } = chunk;
 
-			return { name, className, caption: U.File.size(usage), percent: usage / bytesLimit, isActive: true, };
+			return { name, className, caption: U.File.size(usage), percent: bytesLimit ? usage / bytesLimit : 0, isActive: true, };
 		});
 
-		const usagePercent = bytesUsed / bytesLimit;
-		const isRed = usagePercent >= 100;
 		const legend = chunks.concat([ { name: translate('popupSettingsSpaceStorageProgressBarFree'), usage: bytesLimit - bytesUsed, className: 'free' } ]);
 
-		if (isRed) {
-			usageCn.push('red');
-		};
-
-		const Manager = (item: any) => {
-			const { refId } = item;
-			const buttons: I.ButtonComponent[] = [
-				{ icon: 'remove', text: translate('commonDeleteImmediately'), onClick: () => this.onRemove(refId) }
-			];
-			const filters: I.Filter[] = [
-				{ relationKey: 'syncStatus', condition: I.FilterCondition.In, value: item.filters },
-				{ relationKey: 'layout', condition: I.FilterCondition.In, value: U.Object.getFileLayouts() },
-			];
-			const sorts: I.Sort[] = [
-				{ type: I.SortType.Desc, relationKey: 'sizeInBytes' },
-			];
-
-			return (
-				<div className="fileManagerWrapper">
-					<Title className="sub" text={item.title} />
-
-					<ListObjectManager
-						ref={ref => this.refManagers[refId] = ref}
-						subId={item.subId}
-						rowLength={2}
-						buttons={buttons}
-						info={I.ObjectManagerItemInfo.FileSize}
-						iconSize={18}
-						sorts={sorts}
-						filters={filters}
-						keys={U.Subscription.syncStatusRelationKeys()}
-						ignoreHidden={false}
-						ignoreArchived={false}
-						textEmpty={translate('popupSettingsSpaceStorageEmptyLabel')}
-					/>
-				</div>
-			);
-		};
+		const filters: I.Filter[] = [
+			{ relationKey: 'layout', condition: I.FilterCondition.In, value: U.Object.getFileLayouts() },
+		];
+		const sorts: I.Sort[] = [
+			{ type: I.SortType.Desc, relationKey: 'sizeInBytes' },
+		];
+		const buttons: I.ButtonComponent[] = [
+			{ icon: 'remove', text: translate('commonDeleteImmediately'), onClick: () => this.onRemove() }
+		];
 
 		return (
 			<div ref={ref => this.node = ref} className="wrap">
 				<Title text={translate(`pageSettingsSpaceRemoteStorage`)} />
 				<Label text={translate(`popupSettingsSpaceIndexStorageText`)} />
 
-				<div className={usageCn.join(' ')}>
+				<div className="item usageWrapper">
 					<ProgressBar segments={progressSegments} />
 
 					<div className="info">
 						<div className="totalUsage">
 							<span>{U.File.size(bytesUsed, true)} </span>
-							{U.Common.sprintf(translate('popupSettingsSpaceStorageProgressBarUsageLabel'), U.File.size(bytesLimit, true))}
+							{bytesLimit ? U.Common.sprintf(translate('popupSettingsSpaceStorageProgressBarUsageLabel'), U.File.size(bytesLimit, true)) : ''}
 						</div>
 
 						<div className="legend">
@@ -126,12 +91,23 @@ const PageMainSettingsStorage = observer(class PageMainSettingsStorage extends R
 				</div>
 
 				{canWrite ? (
-					<Manager
-						refId={'synced'}
-						subId={J.Constant.subId.fileManagerSynced}
-						title={translate('pageSettingsSpaceSyncedFiles')}
-						filters={[ I.SyncStatusObject.Synced ]}
-					/>
+					<div className="fileManagerWrapper">
+						<Title className="sub" text={translate('pageSettingsSpaceStorageFiles')} />
+
+						<ListObjectManager
+							ref={ref => this.refManager = ref}
+							subId={J.Constant.subId.fileManagerSynced}
+							rowLength={2}
+							buttons={buttons}
+							info={I.ObjectManagerItemInfo.FileSize}
+							iconSize={18}
+							sorts={sorts}
+							filters={filters}
+							ignoreHidden={false}
+							ignoreArchived={false}
+							textEmpty={translate('popupSettingsSpaceStorageEmptyLabel')}
+						/>
+					</div>
 				) : ''}
 			</div>
 		);
@@ -141,18 +117,10 @@ const PageMainSettingsStorage = observer(class PageMainSettingsStorage extends R
 		U.Subscription.destroyList([ J.Constant.subId.fileManagerSynced ]);
 	};
 
-	onUpgrade () {
-		const usage = Math.round(U.Common.calculateStorageUsage());
-
-		Action.membershipUpgrade();
-
-		analytics.event('ClickUpgradePlanTooltip', { type: `StorageExceeded`, usage, route: analytics.route.settingsStorage });
-	};
-
-	onRemove (refId: string) {
-		const ref = this.refManagers[refId];
-
-		Action.delete(ref.getSelected(), analytics.route.settings, () => ref?.selectionClear());
+	onRemove () {
+		if (this.refManager) {
+			Action.delete(this.refManager.getSelected(), analytics.route.settings, () => this.refManager?.selectionClear());
+		};
 	};
 
 	resize () {

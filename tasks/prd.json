@@ -252,8 +252,8 @@
         "Browser: verify login/unlock flow still works with passphrase"
       ],
       "priority": 15,
-      "passes": false,
-      "notes": "Keep the existing mnemonic passphrase system per user answer."
+      "passes": true,
+      "notes": "Done. Removed Stage.Email from onboard.tsx (renumbered Persona=1, UseCase=2), removed email UI case, emailRef, onEmailKeyUp. Login.tsx already handled in US-010. Stubbed deleted.tsx to simple logout page (removed C.AccountRevertDeletion, pie chart, export/remove). Stubbed delete.tsx settings page to return null. migrate.tsx kept (C.AccountMigrate is local data migration, not network-dependent)."
     },
     {
       "id": "US-016",

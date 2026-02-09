@@ -223,3 +223,19 @@
   - The lib/ functions (isAnytypeNetwork, isDevelopmentNetwork, isLocalNetwork) are kept as constant-returning stubs for any remaining non-component callers like isFreeMember()
 
 ---
+
+## 2026-02-09 - US-015
+- What was implemented: Simplified auth flow by removing email verification step, stubbing account deletion pages
+- Files changed:
+  - src/ts/component/page/auth/onboard.tsx - Removed Stage.Email from enum (renumbered Persona=1, UseCase=2), removed email switch cases from onForward() and render, removed emailRef, onEmailKeyUp, Input/KeyboardEvent imports
+  - src/ts/component/page/auth/deleted.tsx - Stubbed to simple logout page (removed C.AccountRevertDeletion, pie chart, export/remove buttons, survey check)
+  - src/ts/component/page/main/settings/delete.tsx - Stubbed to return null (C.AccountDelete not needed for offline-only)
+- **Learnings for future iterations:**
+  - The onboard Stage enum uses integer values that map to string keys for i18n (translate(`authOnboard${Stage[stage]}Title`)) — renumbering stages changes the mapping, but removing Email and keeping Phrase/Persona/UseCase works because the string values match
+  - login.tsx was already fully handled in US-010 (AccountRecover replaced with stored accountId lookup)
+  - migrate.tsx uses C.AccountMigrate which is a local data format migration — it doesn't require network and should be kept
+  - deleted.tsx is reached via two paths: page/index.tsx guard (accountIsDeleted/accountIsPending) and settings/delete.tsx — both still route there but the page is now a simple logout
+  - The delete settings page button was already removed from phrase.tsx in US-014 (!isLocal was always false), making delete.tsx unreachable from UI
+  - The page/index.tsx auth guard (line 193) still redirects to /auth/deleted if account status is deleted/pending — this is harmless since the stubbed page just shows logout
+
+---

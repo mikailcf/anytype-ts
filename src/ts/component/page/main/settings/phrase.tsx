@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
-import { Title, Label, Phrase, QR, Button } from 'Component';
+import { Title, Label, Phrase, QR } from 'Component';
 import { I, C, S, U, translate, analytics, Storage, Renderer } from 'Lib';
 
 interface State {
@@ -27,8 +27,7 @@ const PageMainSettingsPhrase = observer(class PageMainSettingsPhrase extends Rea
 
 	render () {
 		const { entropy, showCode } = this.state;
-		const { onPage } = this.props;
-		const isLocal = U.Data.isLocalNetwork();
+
 
 		return (
 			<div
@@ -56,13 +55,6 @@ const PageMainSettingsPhrase = observer(class PageMainSettingsPhrase extends Rea
 					</div>
 				</div>
 
-				{!isLocal ? (
-					<>
-						<Title className="sub" text={translate('popupSettingsDataManagementDeleteTitle')} />
-						<Label className="description" text={translate('popupSettingsDataManagementDeleteText')} />
-						<Button className="c36" onClick={() => onPage('delete')} color="red" text={translate('popupSettingsDataManagementDeleteButton')} />
-					</>
-				) : ''}
 			</div>
 		);
 	};

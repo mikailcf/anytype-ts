@@ -67,16 +67,14 @@ const PageMainSettingsDataIndex = observer(class PageMainSettingsDataIndex exten
 	onOffload (e: any) {
 		const { setLoading } = this.props;
 		const suffix = this.getSuffix();
-		const isLocalNetwork = U.Data.isLocalNetwork();
-
 		analytics.event('ScreenFileOffloadWarning');
 
 		S.Popup.open('confirm',{
 			data: {
 				title: translate('commonAreYouSure'),
 				text: translate(`popupSettingsDataOffloadWarningText${suffix}`),
-				textConfirm: isLocalNetwork ? translate('popupSettingsDataRemoveFiles') : translate('commonConfirm'),
-				textCancel: isLocalNetwork ? translate('popupSettingsDataKeepFiles') : translate('commonCancel'),
+				textConfirm: translate('popupSettingsDataRemoveFiles'),
+				textCancel: translate('popupSettingsDataKeepFiles'),
 				onConfirm: () => {
 					setLoading(true);
 					analytics.event('SettingsStorageOffload');
@@ -109,7 +107,7 @@ const PageMainSettingsDataIndex = observer(class PageMainSettingsDataIndex exten
 	};
 
 	getSuffix () {
-		return U.Data.isLocalNetwork() ? 'LocalOnly' : '';
+		return 'LocalOnly';
 	};
 
 });

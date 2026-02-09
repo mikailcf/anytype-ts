@@ -209,8 +209,8 @@
         "npm run lint"
       ],
       "priority": 13,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Done. Removed isOnlineValue, isOnline computed, isOnlineSet action from store/common.ts. Made isAnytypeNetwork/isDevelopmentNetwork return false and isLocalNetwork return true in data.ts. Removed online/offline event handler and isOnlineSet calls from keyboard.ts. Made isShareActive return false and simplified getInviteLink in space.ts. Replaced S.Common.isOnline with navigator.onLine in embed.tsx for local embed rendering."
     },
     {
       "id": "US-014",
@@ -229,8 +229,8 @@
         "Browser: broad UI sweep — verify settings pages, menus, and sidebar render correctly without runtime errors (browser_snapshot + browser_console_messages)"
       ],
       "priority": 14,
-      "passes": false,
-      "notes": "This is a sweep across many files. Focus on component/ directory."
+      "passes": true,
+      "notes": "Done. Removed U.Data.isAnytypeNetwork() from upsell/index.tsx (simplified to always return null). Removed U.Data.isLocalNetwork() from data/index.tsx (inlined 'LocalOnly' suffix and local-only labels). Removed U.Data.isLocalNetwork() from phrase.tsx (removed dead delete-account section). S.Common.isOnline was already fully removed in US-013. embed.tsx navigator.onLine kept (browser API for actual internet, not store)."
     },
     {
       "id": "US-015",

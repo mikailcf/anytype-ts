@@ -191,3 +191,35 @@
 - **Test plan results:** typecheck pass, lint pass, build:dev pass. Browser console check requires running Electron app with middleware — needs manual verification.
 
 ---
+
+## 2026-02-08 - US-013
+- What was implemented: Removed online state tracking and simplified network utility functions for offline-only mode
+- Files changed:
+  - src/ts/store/common.ts - Removed isOnlineValue field, isOnline computed property, isOnlineSet action, and their MobX decorators
+  - src/ts/lib/util/data.ts - Made isAnytypeNetwork() always return false, isDevelopmentNetwork() always return false, isLocalNetwork() always return true
+  - src/ts/lib/keyboard.ts - Removed S.Common.isOnlineSet(navigator.onLine) initialization and the online/offline window event handler (which also fetched membership tiers)
+  - src/ts/component/block/embed.tsx - Replaced S.Common.isOnline with navigator.onLine for embed rendering (Latex/Mermaid render locally; external embeds depend on actual network)
+  - src/ts/lib/util/space.ts - Made isShareActive() always return false, simplified getInviteLink() to always use protocol format
+- **Learnings for future iterations:**
+  - isOnline tracked navigator.onLine via the store — for features that genuinely depend on actual internet (like embeds), use navigator.onLine directly instead of the store
+  - isAnytypeNetwork/isDevelopmentNetwork/isLocalNetwork are checked by several callers (upsell, data settings, phrase settings, isFreeMember) — making them return constants is safer than removing them and touching all callers
+  - spaceStorage in common store tracks local storage (bytesLimit, localUsage, spaces[].bytesUsage) — it's NOT remote-only, so it should be kept
+  - isFreeMember() uses isAnytypeNetwork() — with it returning false, isFreeMember always returns false, which is correct for offline mode
+  - The keyboard.ts online/offline handler also fetched membership tiers on reconnect — removing this is fine since membership is already disabled
+
+---
+
+## 2026-02-09 - US-014
+- What was implemented: Cleaned up all online-dependent UI conditionals in component code
+- Files changed:
+  - src/ts/component/util/upsell/index.tsx - Simplified to always return null (isAnytypeNetwork() returns false, so canShow was always false)
+  - src/ts/component/page/main/settings/data/index.tsx - Inlined 'LocalOnly' suffix (isLocalNetwork() always true), removed isLocalNetwork variable and ternary conditionals for confirm/cancel labels
+  - src/ts/component/page/main/settings/phrase.tsx - Removed dead delete-account section (!isLocal was always false), removed unused Button import and onPage prop
+- **Learnings for future iterations:**
+  - S.Common.isOnline was already fully removed in US-013 — no component references remained
+  - embed.tsx uses navigator.onLine (browser native API) not S.Common.isOnline — this is correct for detecting actual internet for external embeds
+  - UpsellBanner had complex logic that was entirely dead code since isAnytypeNetwork() returns false — safe to gut entirely
+  - phrase.tsx had a delete-account section gated behind !isLocal which was always false in offline mode — removing it is cleaner
+  - The lib/ functions (isAnytypeNetwork, isDevelopmentNetwork, isLocalNetwork) are kept as constant-returning stubs for any remaining non-component callers like isFreeMember()
+
+---

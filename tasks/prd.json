@@ -28,7 +28,7 @@
         "Remove the 'Membership' item from the settings sidebar in sidebar/page/settings/index.tsx",
         "Remove the settings route for membership if one exists",
         "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Verify in browser using playwright, starting the anytype-heart server based on Makefile on that project, and starting anytype-ts server based on Makefile on this project"
       ],
       "priority": 2,
       "passes": true,
@@ -43,7 +43,7 @@
         "Remove the UpsellBanner component and all references to it throughout the codebase",
         "Remove any 'Upgrade' or 'Get membership' buttons/links in other components",
         "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Verify in browser using playwright, starting the anytype-heart server based on Makefile on that project, and starting anytype-ts server based on Makefile on this project"
       ],
       "priority": 3,
       "passes": true,
@@ -74,7 +74,7 @@
         "Remove from lib/api/command.ts: PublishingCreate, PublishingRemove, PublishingList, PublishingResolveUri, PublishingGetStatus",
         "Remove all remaining references to publishing commands",
         "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Verify in browser using playwright, starting the anytype-heart server based on Makefile on that project, and starting anytype-ts server based on Makefile on this project"
       ],
       "priority": 5,
       "passes": true,
@@ -89,7 +89,7 @@
         "Remove the 'Members' or 'Share' menu item from space settings sidebar",
         "Remove the settings route for space sharing",
         "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Verify in browser using playwright, starting the anytype-heart server based on Makefile on that project, and starting anytype-ts server based on Makefile on this project"
       ],
       "priority": 6,
       "passes": true,
@@ -105,7 +105,7 @@
         "Remove popup/share.tsx and all references that open it",
         "Remove notification handling for space join requests in component/notification/index.tsx",
         "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Verify in browser using playwright, starting the anytype-heart server based on Makefile on that project, and starting anytype-ts server based on Makefile on this project"
       ],
       "priority": 7,
       "passes": true,
@@ -135,7 +135,7 @@
         "Remove sync-related badge on the 'Remote Storage' settings item in sidebar/page/settings/index.tsx",
         "Remove P2P device count and sync counters from any visible UI",
         "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Verify in browser using playwright, starting the anytype-heart server based on Makefile on that project, and starting anytype-ts server based on Makefile on this project"
       ],
       "priority": 9,
       "passes": true,
@@ -243,7 +243,7 @@
         "Remove migration flow in component/page/auth/migrate.tsx if it depends on network",
         "Existing passphrase-based vault creation and unlock still works",
         "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Verify in browser using playwright, starting the anytype-heart server based on Makefile on that project, and starting anytype-ts server based on Makefile on this project"
       ],
       "testPlan": [
         "npm run typecheck",
@@ -264,7 +264,7 @@
         "Disclaimer uses the translate() function for i18n",
         "Disclaimer is non-blocking — user can proceed past it",
         "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Verify in browser using playwright, starting the anytype-heart server based on Makefile on that project, and starting anytype-ts server based on Makefile on this project"
       ],
       "priority": 16,
       "passes": true,
@@ -280,7 +280,7 @@
         "Remove any 'Upgrade' storage prompts",
         "Rename sidebar item from 'Remote Storage' to 'Local Storage' or 'Storage'",
         "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Verify in browser using playwright, starting the anytype-heart server based on Makefile on that project, and starting anytype-ts server based on Makefile on this project"
       ],
       "priority": 17,
       "passes": false,
@@ -297,7 +297,7 @@
         "Progress indicator shown during export",
         "Error handling for failed exports with user-visible message",
         "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Verify in browser using playwright, starting the anytype-heart server based on Makefile on that project, and starting anytype-ts server based on Makefile on this project"
       ],
       "priority": 18,
       "passes": false,
@@ -314,7 +314,7 @@
         "Progress indicator shown during import",
         "Error handling for corrupt or incompatible files with user-visible message",
         "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Verify in browser using playwright, starting the anytype-heart server based on Makefile on that project, and starting anytype-ts server based on Makefile on this project"
       ],
       "priority": 19,
       "passes": false,
@@ -330,7 +330,7 @@
         "No empty sections, broken links, or pages that render nothing",
         "Navigation between all remaining settings pages works correctly",
         "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Verify in browser using playwright, starting the anytype-heart server based on Makefile on that project, and starting anytype-ts server based on Makefile on this project"
       ],
       "priority": 20,
       "passes": false,

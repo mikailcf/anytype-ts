@@ -258,3 +258,18 @@
   - **Critical:** When using ANYTYPE_USE_SIDE_SERVER, must call `C.InitialSetParameters(platform, version, workDir, ...)` before AccountCreate — the external server doesn't receive this automatically. Access C module via webpack: `webpackChunkanytype.push([['_test_'], {}, function(req) { __webpack_require__ = req; }])` then iterate `__webpack_require__.m` to find module with `InitialSetParameters`
 
 ---
+
+## 2026-02-09 - US-017
+- What was implemented: Replaced remote storage settings with local-only storage view
+- Files changed:
+  - src/json/text.json - Renamed "Remote Storage" to "Storage", updated storage description to local-only text, added "Files" translation key
+  - src/ts/component/page/main/settings/space/storage.tsx - Removed sync status filter (show all files, not just synced), removed onUpgrade method, removed red usage warning class, removed syncStatusRelationKeys usage, renamed "Synced files" to "Files", simplified refManagers to single refManager
+  - tasks/prd.json - Marked US-017 as passing
+- **Learnings for future iterations:**
+  - spaceStorage in common store tracks local storage (bytesLimit, localUsage, spaces[].bytesUsage) — it's genuinely local and useful for offline mode
+  - The file manager's syncStatus filter was the main remote-centric piece — removing it shows all files regardless of sync state
+  - The "red" usage warning class (`usagePercent >= 100`) was tied to remote storage limits — not meaningful for local storage where the OS manages disk space
+  - UpsellBanner was already fully gutted in US-003/US-014, so no cleanup needed in storage.tsx
+  - The sidebar item name comes from the same translation key (`pageSettingsSpaceRemoteStorage`) used in both the sidebar and the storage page title — changing the translation once updates both
+
+---

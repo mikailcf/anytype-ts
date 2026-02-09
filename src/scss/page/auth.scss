@@ -192,6 +192,8 @@ html.bodyAuthDeleted {
 		}
 
 		.phraseWrapper { background-color: var(--color-shape-tertiary); margin: 0px 0px 32px 0px; }
+
+		.label.disclaimer { @include text-small; color: var(--color-text-tertiary) !important; margin: 16px 0px 0px 0px; width: 480px; text-align: center; }
 	}
 
 	.inputWrapper { margin: 0px 0px 24px 0px; }

@@ -307,8 +307,8 @@ const PageAuthOnboard = observer(forwardRef<{}, I.PageComponent>((props, ref) =>
 	}, [ stage ]);
 
 	return (
-		<div 
-			ref={nodeRef} 
+		<div
+			ref={nodeRef}
 			className={`stage${Stage[stage]}`}
 		>
 			<Header {...props} component="authIndex" onBack={onBack} />
@@ -321,6 +321,10 @@ const PageAuthOnboard = observer(forwardRef<{}, I.PageComponent>((props, ref) =>
 				{content}
 				<Error className="animation" text={error} />
 				<div className="buttons">{buttons}</div>
+
+				{stage == Stage.Phrase ? (
+					<Label className="disclaimer animation" text={translate('authOnboardPhraseDisclaimer')} />
+				) : ''}
 			</Frame>
 		</div>
 	);

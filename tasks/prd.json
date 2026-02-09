@@ -267,8 +267,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 16,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Done. Added offline-only disclaimer Label below buttons on Phrase stage of onboarding. Added authOnboardPhraseDisclaimer translation key to text.json. Styled with text-small, tertiary color, centered. Non-blocking — user can proceed past it."
     },
     {
       "id": "US-017",

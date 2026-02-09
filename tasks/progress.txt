@@ -239,3 +239,18 @@
   - The page/index.tsx auth guard (line 193) still redirects to /auth/deleted if account status is deleted/pending — this is harmless since the stubbed page just shows logout
 
 ---
+
+## 2026-02-09 - US-016
+- What was implemented: Added offline-only disclaimer to the onboarding vault creation screen
+- Files changed:
+  - src/json/text.json - Added authOnboardPhraseDisclaimer translation key
+  - src/ts/component/page/auth/onboard.tsx - Added disclaimer Label below buttons on Phrase stage
+  - src/scss/page/auth.scss - Added .label.disclaimer style in .stagePhrase (text-small, tertiary color, centered, 480px width)
+  - tasks/prd.json - Marked US-016 as passing
+- **Learnings for future iterations:**
+  - The auth SCSS already had a `.footer .disclaimer` style, but it's scoped to `.footer` — for the onboard page, add the disclaimer style inside `.stagePhrase`
+  - The Label component accepts className — using "disclaimer animation" gives it the right class and entrance animation
+  - Translation keys for onboarding follow the pattern `authOnboard{Stage}{Element}` (e.g., authOnboardPhraseDisclaimer)
+  - The `@include text-small` mixin is available for smaller informational text in SCSS
+
+---

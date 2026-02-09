@@ -453,6 +453,7 @@
 	"authOnboardPhraseTitle": "This is your Key",
 	"authOnboardPhraseLabel": "It replaces login and password. Keep it safe — only you are responsible for your data. You can find this Key later in app settings.",
 	"authOnboardPhraseRevealAndCopy": "Reveal and Copy",
+	"authOnboardPhraseDisclaimer": "This is an offline-only version of Anytype. Your data stays on this device and is never sent to the cloud.",
 
 	"authOnboardEmailTitle": "Stay in the loop",
 	"authOnboardEmailLabel": "We'd love to share tips, tricks and product updates with you. Your email is never linked to your identity. We won't share your data. Ever.",

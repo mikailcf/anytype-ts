@@ -120,3 +120,41 @@ Anytype is an Electron-based desktop application with TypeScript/React frontend 
 - Use existing utility functions in `lib/util/` before creating new ones
 - Follow existing component patterns in `component/` directory
 - Store updates should trigger UI re-renders automatically via MobX
+
+## Browser Testing with Playwright/CDP
+
+The app runs in Electron and requires the anytype-heart middleware. To test UI changes in a browser:
+
+### Starting the servers
+1. **Start the heart server:** `cd /path/to/anytype-heart && make run-server` (or run `./dist/server` directly if already built)
+2. **Start Electron with remote debugging:**
+   ```
+   ANYTYPE_USE_SIDE_SERVER=http://127.0.0.1:31008 npx electron . --remote-debugging-port=9222
+   ```
+   Or use the Makefile: `make run-local` (add `--remote-debugging-port=9222` to the command)
+
+### Connecting via CDP
+- List targets: `curl -s http://127.0.0.1:9222/json` — find the target with `"title": "... - Anytype"`
+- Interact via WebSocket using the target's `webSocketDebuggerUrl` and Chrome DevTools Protocol (`Runtime.evaluate`, `Page.captureScreenshot`, etc.)
+- Node.js example: `const ws = new WebSocket(targetWsUrl); ws.send(JSON.stringify({id:1, method:'Runtime.evaluate', params:{expression:'document.body.innerText'}}))`
+
+### Gotcha: InitialSetParameters
+When using `ANYTYPE_USE_SIDE_SERVER`, the external heart server does **not** receive `InitialSetParameters` automatically (normally the bundled middleware gets this during Electron startup). You must call it before `AccountCreate` or the middleware will panic.
+
+To call it from the Electron renderer console via CDP:
+```js
+// Extract webpack require
+var __webpack_require__;
+webpackChunkanytype.push([['_'], {}, function(req) { __webpack_require__ = req; }]);
+// Find the command module
+var C;
+for (var id of Object.keys(__webpack_require__.m)) {
+  try { var m = __webpack_require__(id); if (m?.InitialSetParameters) { C = m; break; } } catch(e) {}
+}
+// Call it (platform: 1=Mac, 2=Windows, 3=Linux)
+C.InitialSetParameters(1, '0.50.11', '/path/to/data', 'warn', true, false, console.log);
+```
+
+### Notes
+- The app cannot render in a regular browser — it requires Electron's IPC bridge (`Renderer` module). Always connect to the Electron window via CDP, not `http://localhost:8080` directly.
+- Typecheck errors in `dist/lib/pkg/` and `node_modules/` are pre-existing and unrelated to source changes.

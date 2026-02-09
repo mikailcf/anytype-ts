@@ -72,8 +72,6 @@ class MenuManager {
 		const { config } = ConfigManager;
 		const Api = require('./api.js');
 		const WindowManager = require('./window.js');
-		const UpdateManager = require('./update.js');
-		const isAllowedUpdate = UpdateManager.isAllowed();
 
 		config.debug = config.debug || {};
 		config.flagsMw = config.flagsMw || {};
@@ -89,9 +87,6 @@ class MenuManager {
 					{ role: 'hide', label: Util.translate('electronMenuHide') },
 					{ role: 'hideothers', label: Util.translate('electronMenuHideOthers') },
 					{ role: 'unhide', label: Util.translate('electronMenuUnhide') },
-
-					{ type: 'separator', visible: isAllowedUpdate },
-					{ label: Util.translate('electronMenuCheckUpdates'), click: () => Api.updateCheck(this.win), visible: isAllowedUpdate },
 
 					Separator,
 
@@ -345,19 +340,6 @@ class MenuManager {
 			]
 		});
 
-		const channels = ConfigManager.getChannels().map(it => {
-			it.click = () => { 
-				if (!UpdateManager.isUpdating) {
-					Util.send(this.win, 'commandGlobal', 'releaseChannel', it.id);
-				};
-			};
-			return it;
-		}); 
-
-		if (channels.length > 1) {
-			menuParam.push({ label: Util.translate('electronMenuVersion'), submenu: channels });
-		};
-
 		const menuSudo = { 
 			label: 'Sudo',
 			submenu: [
@@ -410,8 +392,6 @@ class MenuManager {
 		const { config } = ConfigManager;
 		const WindowManager = require('./window.js');
 		const Api = require('./api.js');
-		const UpdateManager = require('./update.js');
-		const isAllowedUpdate = UpdateManager.isAllowed();
 
 		this.destroy();
 
@@ -432,7 +412,6 @@ class MenuManager {
 
 			Separator,
 
-			{ label: Util.translate('electronMenuCheckUpdates'), click: () => { this.winShow(); Api.updateCheck(this.win); }, visible: isAllowedUpdate },
 			{ label: Util.translate('commonSettings'), submenu: this.menuSettings() },
 			
 			Separator,

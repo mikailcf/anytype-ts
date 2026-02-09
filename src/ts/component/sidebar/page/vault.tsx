@@ -10,15 +10,12 @@ import { CSS } from '@dnd-kit/utilities';
 import { IconObject, ObjectName, Filter, Label, Icon, Button, EmptySearch, ChatCounter } from 'Component';
 import { I, U, S, J, C, keyboard, translate, analytics, sidebar, Key, Highlight, Storage, Action } from 'Lib';
 
-import ItemProgress from './vault/update';
-
 const LIMIT = 20;
 const HEIGHT_ITEM = 64;
 
 const SidebarPageVaultBase = observer(forwardRef<{}, I.SidebarPageComponent>((props, ref) => {
 
 	const { getId } = props;
-	const { updateVersion } = S.Common;
 	const [ filter, setFilter ] = useState('');
 	const checkKeyUp = useRef(false);
 	const closeSidebar = useRef(false);
@@ -31,7 +28,6 @@ const SidebarPageVaultBase = observer(forwardRef<{}, I.SidebarPageComponent>((pr
 	);
 	const profile = U.Space.getProfile();
 	const settings = { ...profile, id: 'settings', tooltip: translate('commonAppSettings'), layout: I.ObjectLayout.Human };
-	const progress = S.Progress.getList(it => it.type == I.ProgressType.Update);
 	const menuHelpOffset = U.Data.isFreeMember() ? -78 : -4;
 	const canCreate = U.Space.canCreateSpace();
 
@@ -181,10 +177,6 @@ const SidebarPageVaultBase = observer(forwardRef<{}, I.SidebarPageComponent>((pr
 		if (filter) {
 			const reg = new RegExp(U.Common.regexEscape(filter), 'gi');
 			items = items.filter(it => String(it.name || '').match(reg) || String(it.lastMessage || '').match(reg));
-		};
-
-		if (progress.length || updateVersion) {
-			items.unshift({ id: 'update-progress', isProgress: true, isUpdate: Boolean(updateVersion) });
 		};
 
 		return items;
@@ -369,19 +361,11 @@ const SidebarPageVaultBase = observer(forwardRef<{}, I.SidebarPageComponent>((pr
 				columnIndex={0}
 				rowIndex={param.index}
 			>
-				{item.isProgress ? (
-					<ItemProgress
-						{...item}
-						index={param.index}
-						style={param.style}
-					/>
-				) : (
-					<ItemObject
-						{...item}
-						index={param.index}
-						style={param.style}
-					/>
-				)}
+				<ItemObject
+					{...item}
+					index={param.index}
+					style={param.style}
+				/>
 			</CellMeasurer>
 		);
 	};
@@ -421,7 +405,7 @@ const SidebarPageVaultBase = observer(forwardRef<{}, I.SidebarPageComponent>((pr
 	};
 
 	const getRowHeight = (item: any) => {
-		return HEIGHT_ITEM + (item.isUpdate ? 36 : 0);
+		return HEIGHT_ITEM;
 	};
 
 	useEffect(() => {

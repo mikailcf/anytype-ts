@@ -26,7 +26,6 @@ storage.setDataPath(app.getPath('userData'));
 
 const Api = require('./electron/js/api.js');
 const ConfigManager = require('./electron/js/config.js');
-const UpdateManager = require('./electron/js/update.js');
 const MenuManager = require('./electron/js/menu.js');
 const WindowManager = require('./electron/js/window.js');
 const Server = require('./electron/js/server.js');
@@ -183,9 +182,6 @@ function createWindow () {
 		};
 		return false;
 	});
-
-	UpdateManager.setWindow(mainWindow);
-	UpdateManager.init();
 
 	MenuManager.setWindow(mainWindow);
 	MenuManager.initMenu();

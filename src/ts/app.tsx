@@ -127,10 +127,6 @@ const App: FC = () => {
 		Renderer.on('init', onInit);
 		Renderer.on('route', (e: any, route: string) => onRoute(route));
 		Renderer.on('popup', onPopup);
-		Renderer.on('update-not-available', onUpdateUnavailable);
-		Renderer.on('update-downloaded', onUpdateDownloaded);
-		Renderer.on('update-error', onUpdateError);
-		Renderer.on('download-progress', onUpdateProgress);
 		Renderer.on('spellcheck', onSpellcheck);
 		Renderer.on('pin-set', () => S.Common.pinInit());
 		Renderer.on('pin-remove', () => S.Common.pinInit());
@@ -300,64 +296,6 @@ const App: FC = () => {
 		};
 
 		window.setTimeout(() => S.Popup.open(id, param), S.Popup.getTimeout());
-	};
-
-	const onUpdateDownloaded = (e: any, info: any) => {
-		console.log('[App.onUpdateDownloaded]', info);
-		S.Common.updateVersionSet(info?.version);
-		S.Progress.delete(I.ProgressType.Update);
-	};
-
-	const onUpdateUnavailable = (e: any, auto: boolean) => {
-		if (auto) {
-			return;
-		};
-
-		S.Popup.open('confirm', {
-			data: {
-				icon: 'updated',
-				title: translate('popupConfirmUpdateDoneTitle'),
-				text: U.Common.sprintf(translate('popupConfirmUpdateDoneText'), electron.version.app),
-				textConfirm: translate('popupConfirmUpdateDoneOk'),
-				colorConfirm: 'blank',
-				canCancel: false,
-			},
-		});
-	};
-
-	const onUpdateError = (e: any, err: string, auto: boolean) => {
-		console.error(err);
-		S.Common.updateVersionSet('');
-		S.Progress.delete(I.ProgressType.Update);
-
-		if (auto) {
-			return;
-		};
-
-		S.Popup.open('confirm', {
-			data: {
-				icon: 'error',
-				title: translate('popupConfirmUpdateErrorTitle'),
-				text: U.Common.sprintf(translate('popupConfirmUpdateErrorText'), J.Error[err] || err),
-				textConfirm: translate('commonRetry'),
-				textCancel: translate('commonLater'),
-				onConfirm: () => {
-					Renderer.send('updateDownload');
-				},
-				onCancel: () => {
-					Renderer.send('updateCancel');
-				},
-			},
-		});
-	};
-
-	const onUpdateProgress = (e: any, progress: any) => {
-		S.Progress.update({ 
-			id: I.ProgressType.Update,
-			type: I.ProgressType.Update,
-			current: progress.transferred, 
-			total: progress.total,
-		});
 	};
 
 	const onRoute = (route: string) => {

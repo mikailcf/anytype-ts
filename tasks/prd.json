@@ -182,9 +182,15 @@
         "App starts without attempting any update check network calls",
         "Typecheck passes"
       ],
+      "testPlan": [
+        "npm run typecheck",
+        "npm run lint",
+        "npm run build:dev — electron main process changes may not be caught by tsc alone; verify bundle compiles",
+        "Browser: check app starts without update check errors in console (browser_console_messages)"
+      ],
       "priority": 12,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Done. Gutted electron/js/update.js to no-ops (removed electron-updater import). Removed UpdateManager.init() from electron.js. Made update API methods (updateCheck, updateDownload, updateConfirm, updateCancel) no-ops in api.js. Removed UpdateManager.relaunch() from shutdown(). Removed 'Check Updates' from main menu and tray. Removed version/channel submenu. Removed update IPC event handlers from app.tsx. Stubbed vault/update.tsx and banner.tsx to return null. Removed update-progress item injection from vault sidebar. Made checkUpdateVersion a no-op."
     },
     {
       "id": "US-013",
@@ -197,6 +203,10 @@
         "Remove spaceStorage remote tracking from common store if it only tracks remote storage",
         "Fix all resulting TypeScript errors from these removals",
         "Typecheck passes"
+      ],
+      "testPlan": [
+        "npm run typecheck",
+        "npm run lint"
       ],
       "priority": 13,
       "passes": false,
@@ -212,6 +222,11 @@
         "Find and remove all U.Data.isLocalNetwork() conditionals — resolve branches as if always true",
         "No remaining references to isOnline, isAnytypeNetwork, or isLocalNetwork in component code",
         "Typecheck passes"
+      ],
+      "testPlan": [
+        "npm run typecheck",
+        "npm run lint",
+        "Browser: broad UI sweep — verify settings pages, menus, and sidebar render correctly without runtime errors (browser_snapshot + browser_console_messages)"
       ],
       "priority": 14,
       "passes": false,
@@ -229,6 +244,12 @@
         "Existing passphrase-based vault creation and unlock still works",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
+      ],
+      "testPlan": [
+        "npm run typecheck",
+        "npm run lint",
+        "Browser: verify vault creation flow still works — navigate through onboarding, confirm no email step appears",
+        "Browser: verify login/unlock flow still works with passphrase"
       ],
       "priority": 15,
       "passes": false,

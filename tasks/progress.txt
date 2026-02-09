@@ -16,6 +16,9 @@
 - Analytics is in src/ts/lib/analytics.ts - uses Amplitude, ~313 event calls across ~147 files. Gut the class to no-ops rather than touching callers. Keep the route object (used as string constants)
 - Sentry is initialized in app.tsx with DSN from rspack DefinePlugin, also used in dispatcher.ts and data.ts
 - Electron debug flags are in electron/js/menu.js in the `flags` object
+- Electron auto-update is managed by electron/js/update.js (UpdateManager) using electron-updater. It's used from: electron.js (init), api.js (API handlers), menu.js (menu items + tray), and app.tsx (IPC event handlers)
+- Update UI has two display points: vault sidebar (vault/update.tsx as ItemProgress) and ListBanner (list/banner.tsx)
+- The vault sidebar (vault.tsx) injects an update-progress item into the space list via getItems() when updateVersion or progress exists
 
 ---
 
@@ -163,5 +166,28 @@
   - Sentry is used in 3 files: app.tsx (init), dispatcher.ts (captureMessage for errors), data.ts (setUser)
   - SENTRY_DSN is injected via rspack DefinePlugin with a default fallback - clear both the env var default and constant.ts
   - The analytics debug flag in Electron menu controls config.debug.analytics which is read by analytics.debug() - removing the flag is cleaner than leaving a dead toggle
+
+---
+
+## 2026-02-08 - US-012
+- What was implemented: Removed Electron auto-update functionality
+- Files changed:
+  - electron/js/update.js - Gutted entire UpdateManager class: removed electron-updater import, made all methods no-ops, isAllowed() returns false
+  - electron.js - Removed UpdateManager require, removed setWindow() and init() calls
+  - electron/js/api.js - Removed UpdateManager import, made updateCheck/updateDownload/updateConfirm/updateCancel no-ops, removed UpdateManager.relaunch() from shutdown() (now always app.exit(0)), removed UpdateManager.setChannel() from setChannel()
+  - electron/js/menu.js - Removed UpdateManager import/isAllowed from initMenu() and initTray(), removed "Check Updates" from main Anytype menu and tray menu, removed version/channel submenu
+  - src/ts/app.tsx - Removed update-not-available, update-downloaded, update-error, download-progress IPC event registrations and all four handler functions (onUpdateDownloaded, onUpdateUnavailable, onUpdateError, onUpdateProgress)
+  - src/ts/component/sidebar/page/vault/update.tsx - Stubbed to return null
+  - src/ts/component/list/banner.tsx - Stubbed to return null
+  - src/ts/component/sidebar/page/vault.tsx - Removed ItemProgress import, removed updateVersion from S.Common, removed progress Update type tracking, removed update-progress item injection in getItems(), removed isProgress branch in rowRenderer, simplified getRowHeight
+  - src/ts/lib/util/common.ts - Made checkUpdateVersion a no-op
+- **Learnings for future iterations:**
+  - The auto-update system spans 4 Electron main process files (update.js, api.js, menu.js, electron.js) and 5 renderer files (app.tsx, vault.tsx, vault/update.tsx, banner.tsx, common.ts)
+  - The vault sidebar injects a special "update-progress" item at the top of the space list via getItems() when an update is downloading or available
+  - shutdown() in api.js branches on relaunch param: true calls UpdateManager.relaunch() (quitAndInstall), false calls app.exit(0) - in offline mode, always use app.exit(0)
+  - The menu.js version/channel submenu uses UpdateManager.isUpdating to prevent channel changes during updates
+  - updateVersionSet/updateVersion in store/common.ts are now dead code but kept as harmless stubs
+  - ListBanner is exported from component/index.ts - stubbing it to return null is cleaner than removing the export
+- **Test plan results:** typecheck pass, lint pass, build:dev pass. Browser console check requires running Electron app with middleware — needs manual verification.
 
 ---

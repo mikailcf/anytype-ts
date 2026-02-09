@@ -11,7 +11,6 @@ const checkDiskSpace = require('check-disk-space').default;
 const MenuManager = require('./menu.js');
 const ConfigManager = require('./config.js');
 const WindowManager = require('./window.js');
-const UpdateManager = require('./update.js');
 const Server = require('./server.js');
 const Util = require('./util.js');
 
@@ -132,23 +131,10 @@ class Api {
 		keytar.deletePassword(KEYTAR_SERVICE, key);
 	};
 
-	updateCheck (win) {
-		if (this.isPinChecked || !this.account) {
-			UpdateManager.checkUpdate(false);
-		};
-	};
-
-	updateDownload (win) {
-		UpdateManager.download();
-	};
-
-	updateConfirm (win) {
-		this.exit(win, '', true);
-	};
-
-	updateCancel (win) {
-		UpdateManager.cancel();
-	};
+	updateCheck (win) {};
+	updateDownload (win) {};
+	updateConfirm (win) {};
+	updateCancel (win) {};
 
 	async download (win, url, options) {
 		await download(win, url, options);
@@ -199,12 +185,7 @@ class Api {
 
 	shutdown (win, relaunch) {
 		Util.log('info', '[Api].shutdown, relaunch: ' + relaunch);
-
-		if (relaunch) {
-			UpdateManager.relaunch();
-		} else {
-			app.exit(0);
-		};
+		app.exit(0);
 	};
 
 	exit (win, signal, relaunch) {
@@ -223,7 +204,6 @@ class Api {
 	};
 
 	setChannel (win, id) {
-		UpdateManager.setChannel(id); 
 		this.setConfig(win, { channel: id }, () => {
 			this.initMenu(win);
 		});

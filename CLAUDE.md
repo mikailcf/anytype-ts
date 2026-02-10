@@ -126,12 +126,16 @@ Anytype is an Electron-based desktop application with TypeScript/React frontend 
 The app runs in Electron and requires the anytype-heart middleware. To test UI changes in a browser:
 
 ### Starting the servers
-1. **Start the heart server:** `cd /path/to/anytype-heart && make run-server` (or run `./dist/server` directly if already built)
-2. **Start Electron with remote debugging:**
+1. **Start the heart server with TWO ports** (gRPC + gRPC-web proxy):
    ```
-   ANYTYPE_USE_SIDE_SERVER=http://127.0.0.1:31008 npx electron . --remote-debugging-port=9222
+   cd /path/to/anytype-heart && ./dist/server 127.0.0.1:0 127.0.0.1:0
    ```
-   Or use the Makefile: `make run-local` (add `--remote-debugging-port=9222` to the command)
+   Look for `gRPC Web proxy started at: 127.0.0.1:<PORT>` in stdout — this is the port you need.
+2. **Start Electron with the gRPC-web proxy address** (NOT the gRPC port):
+   ```
+   SERVER_PORT=8080 ANYTYPE_USE_SIDE_SERVER=http://127.0.0.1:<WEB_PROXY_PORT> npx electron . --remote-debugging-port=9222
+   ```
+   **IMPORTANT:** The app's dispatcher uses gRPC-web, not raw gRPC. Using the wrong port causes silent timeouts.
 
 ### Connecting via CDP
 - List targets: `curl -s http://127.0.0.1:9222/json` — find the target with `"title": "... - Anytype"`
@@ -139,7 +143,9 @@ The app runs in Electron and requires the anytype-heart middleware. To test UI c
 - Node.js example: `const ws = new WebSocket(targetWsUrl); ws.send(JSON.stringify({id:1, method:'Runtime.evaluate', params:{expression:'document.body.innerText'}}))`
 
 ### Gotcha: InitialSetParameters
-When using `ANYTYPE_USE_SIDE_SERVER`, the external heart server does **not** receive `InitialSetParameters` automatically (normally the bundled middleware gets this during Electron startup). You must call it before `AccountCreate` or the middleware will panic.
+When using `ANYTYPE_USE_SIDE_SERVER`, the external heart server does **not** receive `InitialSetParameters` automatically (normally the bundled middleware gets this during Electron startup). You must call it before `AccountCreate`/`AccountSelect` or the middleware will panic.
+
+**Recommended approach:** On first launch, call ISP via CDP, then restart Electron. The server remembers ISP was called, so subsequent Electron launches work without calling ISP again.
 
 To call it from the Electron renderer console via CDP:
 ```js
@@ -151,8 +157,20 @@ var C;
 for (var id of Object.keys(__webpack_require__.m)) {
   try { var m = __webpack_require__(id); if (m?.InitialSetParameters) { C = m; break; } } catch(e) {}
 }
-// Call it (platform: 1=Mac, 2=Windows, 3=Linux)
-C.InitialSetParameters(1, '0.50.11', '/path/to/data', 'warn', true, false, console.log);
+// Call it with callback (platform: 1=Mac, 2=Windows, 3=Linux)
+C.InitialSetParameters(1, '0.50.11', '', 'warn', true, false, (msg) => console.log(JSON.stringify(msg)));
+```
+
+### Navigating to pages via CDP
+To programmatically navigate to settings pages:
+```js
+// Find Action module
+var Action;
+for (var id of Object.keys(__webpack_require__.m)) {
+  try { var m = __webpack_require__(id); if (m?.Action?.openSettings) { Action = m.Action; break; } } catch(e) {}
+}
+// Navigate to a settings page
+Action.openSettings('spaceStorage', 'settings');
 ```
 
 ### Notes

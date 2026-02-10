@@ -19,7 +19,8 @@
 - Electron auto-update is managed by electron/js/update.js (UpdateManager) using electron-updater. It's used from: electron.js (init), api.js (API handlers), menu.js (menu items + tray), and app.tsx (IPC event handlers)
 - Update UI has two display points: vault sidebar (vault/update.tsx as ItemProgress) and ListBanner (list/banner.tsx)
 - The vault sidebar (vault.tsx) injects an update-progress item into the space list via getItems() when updateVersion or progress exists
-- **Browser testing:** Start heart server (`anytype-heart/dist/server`), then Electron (`ANYTYPE_USE_SIDE_SERVER=http://127.0.0.1:31008 npx electron . --remote-debugging-port=9222`). Must call `C.InitialSetParameters` before AccountCreate when using external server. Access internal modules via `webpackChunkanytype.push([['_'], {}, function(req) { __webpack_require__ = req; }])`
+- **Browser testing:** Start heart server with TWO ports: `anytype-heart/dist/server 127.0.0.1:0 127.0.0.1:0` — the first is gRPC, the second is the **gRPC-web proxy** (look for `gRPC Web proxy started at:` in stdout). Use the **web proxy** address for `ANYTYPE_USE_SIDE_SERVER`. Then start Electron: `SERVER_PORT=8080 ANYTYPE_USE_SIDE_SERVER=http://127.0.0.1:<WEB_PROXY_PORT> npx electron . --remote-debugging-port=9222`. Must call `C.InitialSetParameters` before AccountCreate when using external server — call it via CDP on first launch, then restart Electron (the server remembers ISP was called). Access internal modules via `webpackChunkanytype.push([['_'], {}, function(req) { __webpack_require__ = req; }])`
+- **Browser testing navigation:** To navigate to settings pages via CDP: find the Action module via webpack (`m.Action && m.Action.openSettings`), then call `Action.openSettings('pageId', 'settings')`
 
 ---
 
@@ -271,5 +272,10 @@
   - The "red" usage warning class (`usagePercent >= 100`) was tied to remote storage limits — not meaningful for local storage where the OS manages disk space
   - UpsellBanner was already fully gutted in US-003/US-014, so no cleanup needed in storage.tsx
   - The sidebar item name comes from the same translation key (`pageSettingsSpaceRemoteStorage`) used in both the sidebar and the storage page title — changing the translation once updates both
+- **Browser verification:** Confirmed via CDP connection to Electron. Storage settings page renders correctly: title "Storage", description "Your files are stored locally on this device.", progress bar with local usage, "Files" section (not "Synced files"), sidebar shows "Storage" (not "Remote Storage"). No upgrade prompts, no sync status, no "not synced" section. Zero visible errors and zero console errors on the page.
+- **Critical browser testing learnings:**
+  - The heart server must be started with TWO port arguments (`127.0.0.1:0 127.0.0.1:0`) — port 1 is raw gRPC, port 2 is gRPC-web proxy. The app's dispatcher uses gRPC-web, so `ANYTYPE_USE_SIDE_SERVER` MUST point to the web proxy port, not the gRPC port. Using the wrong port causes silent timeouts.
+  - ISP must be called before AccountSelect. The app auto-logins on start, causing a panic if ISP wasn't called. Solution: call ISP on first launch via CDP, then restart Electron — the server remembers ISP state.
+  - To navigate to settings via CDP: find `m.Action.openSettings` via webpack require, then call `Action.openSettings('spaceStorage', 'settings')`.
 
 ---

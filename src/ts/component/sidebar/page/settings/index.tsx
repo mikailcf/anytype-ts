@@ -251,7 +251,7 @@ const SidebarSettingsIndex = observer(class SidebarSettingsIndex extends React.C
 			},
 			{
 				id: 'vaultSettings', name: translate('popupSettingsAccountAndKeyTitle'), children: [
-					{ id: 'phrase', name: translate('popupSettingsPhraseTitle'), subPages: [ 'delete' ] },
+					{ id: 'phrase', name: translate('popupSettingsPhraseTitle') },
 				],
 			},
 			{

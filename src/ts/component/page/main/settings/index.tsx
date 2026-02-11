@@ -5,7 +5,7 @@ import { observer } from 'mobx-react';
 import { I, S, U, analytics, Action, translate, Preview, sidebar, Storage } from 'Lib';
 
 import PageAccount from './account';
-import PageDelete from './delete';
+
 import PagePersonal from './personal';
 import PagePhrase from './phrase';
 import PageLanguage from './language';
@@ -43,7 +43,7 @@ interface State {
 const Components: any = {
 	index: 				 PageAccount,
 	account:			 PageAccount,
-	delete:				 PageDelete,
+
 	personal:			 PagePersonal,
 	phrase:				 PagePhrase,
 	language:			 PageLanguage,

@@ -333,8 +333,8 @@
         "Verify in browser using playwright, starting the anytype-heart server based on Makefile on that project, and starting anytype-ts server based on Makefile on this project"
       ],
       "priority": 20,
-      "passes": false,
-      "notes": "This is the final UI cleanup pass — verify everything removed in prior stories is truly gone."
+      "passes": true,
+      "notes": "Done. Removed dead delete.tsx page from Components map and its import. Removed 'delete' from phrase subPages in sidebar. Browser verified: App settings sidebar shows Account, Application (Preferences, Language & Region, Pin Code), Vault & Key (Login Key), Data Management (Local storage, Spaces, API Keys). Space settings sidebar shows Preferences (General, Storage, Bin), Content Model (Object Types, Properties), Integrations (Import, Export). No Membership, Published Data, or Share/Members items. No empty pages or broken links. All navigation works correctly."
     },
     {
       "id": "US-021",

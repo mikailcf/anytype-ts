@@ -327,3 +327,22 @@
 - **Browser verification:** Confirmed via CDP. Data settings page shows all 4 items: Local files, Data location, Export vault, Import data with description and Import button. No console errors. Icon renders correctly.
 
 ---
+
+## 2026-02-10 - US-020
+- What was implemented: Final UI cleanup pass — removed dead delete settings page and verified all settings sidebar items are clean
+- Files changed:
+  - `src/ts/component/page/main/settings/index.tsx` — Removed PageDelete import and 'delete' entry from Components map
+  - `src/ts/component/sidebar/page/settings/index.tsx` — Removed 'delete' from phrase subPages
+  - `tasks/prd.json` — Marked US-020 as passing
+- **Browser verification:** Confirmed via CDP connection to Electron:
+  - App settings sidebar: Account, Application (Preferences, Language & Region, Pin Code), Vault & Key (Login Key), Data Management (Local storage, Spaces, API Keys), Log out
+  - Space settings sidebar: Preferences (General, Storage, Bin), Content Model (Object Types, Properties), Integrations (Import, Export)
+  - Data management page: Local files, Data location, Export vault, Import data — all 4 items render with working buttons
+  - No Membership, Published Data, or Share/Members items anywhere
+  - No empty pages, broken links, or pages that render nothing
+  - Navigation between all settings pages works correctly
+- **Learnings for future iterations:**
+  - When stubbing a page to return null (like delete.tsx), also remove it from the Components map and sidebar subPages — otherwise it becomes a reachable route that renders nothing
+  - The phrase settings page had delete.tsx as a subPage even though the navigation button to it was already removed in US-014 — always check both the component registration and the sidebar references
+
+---

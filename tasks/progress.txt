@@ -279,3 +279,27 @@
   - To navigate to settings via CDP: find `m.Action.openSettings` via webpack require, then call `Action.openSettings('spaceStorage', 'settings')`.
 
 ---
+
+## US-018: Add vault export functionality to settings
+- **Files modified:**
+  - `src/ts/component/page/main/settings/data/index.tsx` — Added Export vault action item and `onExportVault` handler
+  - `src/json/text.json` — Added 4 translation keys (popupSettingsDataExportVaultTitle, Description, Success, Error)
+  - `src/scss/page/main/settings.scss` — Added `.icon.export` background-image rule
+  - `src/scss/theme/dark/page.scss` — Added `.icon.export` dark theme rule
+- **Key decisions:**
+  - Used `C.ObjectListExport` directly instead of `Action.export()` because `Action.export` has a bug: on gRPC error it returns early without calling the callback, so `setLoading(false)` would never fire
+  - Used `Action.openDirectoryDialog` for native directory picker, then `C.ObjectListExport` with empty objectIds array (exports entire space) in Protobuf format
+  - Loading spinner shown only after user picks a directory (not before)
+  - Error handling: shows confirm popup with error message; success: opens export directory + shows success popup
+- **Patterns discovered:**
+  - Data management settings items follow: `.item` > `.side.left` (Icon + `.txt` (Title + Label)) + `.side.right` (Button)
+  - Icon assets exist at `src/img/icon/settings/<name>.svg` (light) and `src/img/icon/settings/dark/<name>.svg` (dark)
+  - `Action.export()` returns on error without callback — use direct gRPC call when you need error handling in the callback
+- **Browser verification:** Confirmed via CDP. Data settings page shows all 3 items: Local files (8.66MB used), Data location, Export vault with description and Export button. Renders correctly in dark theme.
+- **CDP/Electron testing learnings:**
+  - `--remote-debugging-port=9222` must be passed to the `npx electron .` command directly, not as npm arg (npm doesn't forward through npm-run-all)
+  - Added `start:dev-debug` npm script chain (`electron:debug` → `start:electron-wait-rspack-debug` → `start:dev-debug`) to properly pass CDP flag
+  - `ELECTRON_EXTRA_LAUNCH_ARGS` does NOT work with `npx electron .` (only packaged apps)
+  - Reusable CDP helper scripts: `.playwright-mcp/cdp.js` (eval expressions) and `.playwright-mcp/screenshot.js` (capture screenshots)
+
+---

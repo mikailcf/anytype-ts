@@ -128,14 +128,13 @@ The app runs in Electron and requires the anytype-heart middleware. To test UI c
 ### Starting the servers
 1. **Start the heart server with TWO ports** (gRPC + gRPC-web proxy):
    ```
-   cd /path/to/anytype-heart && ./dist/server 127.0.0.1:0 127.0.0.1:0
+   cd /path/to/anytype-heart && make run-server
    ```
    Look for `gRPC Web proxy started at: 127.0.0.1:<PORT>` in stdout — this is the port you need.
 2. **Start Electron with the gRPC-web proxy address** (NOT the gRPC port):
    ```
-   SERVER_PORT=8080 ANYTYPE_USE_SIDE_SERVER=http://127.0.0.1:<WEB_PROXY_PORT> npx electron . --remote-debugging-port=9222
+   make run-local
    ```
-   **IMPORTANT:** The app's dispatcher uses gRPC-web, not raw gRPC. Using the wrong port causes silent timeouts.
 
 ### Connecting via CDP
 - List targets: `curl -s http://127.0.0.1:9222/json` — find the target with `"title": "... - Anytype"`

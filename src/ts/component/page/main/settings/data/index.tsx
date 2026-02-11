@@ -14,6 +14,7 @@ const PageMainSettingsDataIndex = observer(class PageMainSettingsDataIndex exten
 		super(props);
 
 		this.onOffload = this.onOffload.bind(this);
+		this.onExportVault = this.onExportVault.bind(this);
 	};
 
 	render () {
@@ -53,6 +54,20 @@ const PageMainSettingsDataIndex = observer(class PageMainSettingsDataIndex exten
 						</div>
 						<div className="side right">
 							<Button color="blank" className="c28" text={translate(`commonOpen`)} onClick={this.onOpenDataLocation} />
+						</div>
+					</div>
+
+					<div className="item">
+						<div className="side left">
+							<Icon className="export" />
+
+							<div className="txt">
+								<Title text={translate('popupSettingsDataExportVaultTitle')} />
+								<Label text={translate('popupSettingsDataExportVaultDescription')} />
+							</div>
+						</div>
+						<div className="side right">
+							<Button color="blank" className="c28" text={translate('commonExport')} onClick={this.onExportVault} />
 						</div>
 					</div>
 				</div>
@@ -98,6 +113,39 @@ const PageMainSettingsDataIndex = observer(class PageMainSettingsDataIndex exten
 					});
 				},
 			},
+		});
+	};
+
+	onExportVault () {
+		const { setLoading } = this.props;
+
+		Action.openDirectoryDialog({ buttonLabel: translate('commonExport') }, (paths: string[]) => {
+			setLoading(true);
+
+			C.ObjectListExport(S.Common.space, paths[0], [], I.ExportType.Protobuf, true, true, true, true, true, (message: any) => {
+				setLoading(false);
+
+				if (message.error.code) {
+					S.Popup.open('confirm', {
+						data: {
+							title: translate('popupSettingsDataExportVaultError'),
+							textConfirm: translate('commonOk'),
+							canCancel: false,
+						}
+					});
+					return;
+				};
+
+				Action.openPath(paths[0]);
+
+				S.Popup.open('confirm', {
+					data: {
+						title: translate('popupSettingsDataExportVaultSuccess'),
+						textConfirm: translate('commonOk'),
+						canCancel: false,
+					}
+				});
+			});
 		});
 	};
 

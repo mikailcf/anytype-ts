@@ -376,3 +376,31 @@
   - AccountChangeNetworkConfigAndRestart was a significant gap — it could re-enable network mode without the LocalOnly override
 
 ---
+
+## 2026-02-11 - US-022
+- What was implemented: Removed remote services from anytype-heart middleware — added LocalOnly checks to publishing, name service, gallery, inbox client, and disabled metrics/telemetry
+- Files changed (target repo: anytype-heart):
+  - `core/publish/service.go` — Added `isLocalOnly` flag, `ErrLocalOnlyMode` error, LocalOnly early returns in Publish(), Unpublish(), PublishList(), ResolveUri(), GetStatus()
+  - `core/nameservice/nameservice.go` — Added `networkModeGetter` interface, `isLocalOnly` flag, `ErrLocalOnlyMode` error, LocalOnly early returns in NameServiceResolveName(), NameServiceResolveAnyId(), NameServiceUserAccountGet()
+  - `core/gallery/gallery.go` — Added `networkModeGetter` interface, `isLocalOnly` flag, `ErrLocalOnlyMode` error, LocalOnly early returns in GetManifest(), GetGalleryIndex()
+  - `core/inboxclient/inboxclient.go` — Added `networkModeGetter` interface, `isLocalOnly` flag, LocalOnly check in Run() (skip periodic polling), Init() (skip SetMessageReceiver), InboxAddMessage() (return error)
+  - `metrics/service.go` — Made Run(), Send(), SendSampled(), Close() all no-ops; removed unused mb/v3 import
+- **Components already protected (no changes needed):**
+  - Account recovery (already local — just broadcasts event from derived keys, no network calls)
+  - File sync (IsLocalOnlyMode checks in service.go, upload.go, delete.go)
+  - Push notifications (IsLocalOnlyMode check in service.go)
+  - Payments (IsLocalOnlyMode checks in payments.go)
+  - Email collector (IsLocalOnlyMode check in emailcollector.go)
+  - File object service (IsLocalOnlyMode check in service.go)
+  - Indexer (IsLocalOnlyMode check in reindex.go)
+  - ConfigFetcher (IsLocalOnlyMode check added in US-021)
+  - Local discovery (disabled flag added in US-021)
+- **Build results:** `go build ./...` passes. All tests pass for modified packages (publish, nameservice, gallery, metrics, inboxclient).
+- **Learnings for future iterations:**
+  - The `networkModeGetter` interface pattern (define a local interface with `IsLocalOnlyMode() bool`) is the standard way to access config in services that don't import the full config package — used in configfetcher, localdiscovery, and now nameservice, gallery, inboxclient
+  - Publishing service already imports `config` directly (for PublishLimitsConfig), so it can use `*config.Config` directly without the interface pattern
+  - Metrics service is a global singleton (not an app component) — it can't access config via DI. Simplest approach is to make all methods no-ops entirely for the offline-only fork
+  - Account recovery in anytype-heart is purely local (broadcasts event with account ID from derived keys) — no network calls, no changes needed
+  - The inbox client's `SetMessageReceiver` registers a callback with the coordinator client — must skip this in LocalOnly mode to prevent any network interaction
+
+---

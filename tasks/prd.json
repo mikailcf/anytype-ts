@@ -368,8 +368,8 @@
         "Integration tests pass with no network calls"
       ],
       "priority": 22,
-      "passes": false,
-      "notes": "Target repo: anytype-heart. Depends on US-021."
+      "passes": true,
+      "notes": "Done. Added LocalOnly checks to publishing service (5 public methods return ErrLocalOnlyMode), name service (3 public methods return ErrLocalOnlyMode), gallery service (GetManifest/GetGalleryIndex return ErrLocalOnlyMode), inbox client (Run() returns early, InboxAddMessage returns error, SetMessageReceiver skipped). Disabled metrics/telemetry entirely (Run/Send/SendSampled/Close are no-ops). Account recovery was already local-only (just broadcasts event from derived keys). File sync, push notifications, payments, email collector already had LocalOnly checks from US-021. Build passes (go build ./...). All tests pass for modified packages."
     }
   ]
 }

@@ -317,8 +317,8 @@
         "Verify in browser using playwright, starting the anytype-heart server based on Makefile on that project, and starting anytype-ts server based on Makefile on this project"
       ],
       "priority": 19,
-      "passes": false,
-      "notes": "Build on existing import infrastructure rather than creating new system."
+      "passes": true,
+      "notes": "Done. Added 'Import data' item to Settings > Data Management (data/index.tsx). Uses Action.openFileDialog with protobuf extensions (zip, pb, json), then C.ObjectImport with Protobuf format. Shows toast on import start, loading spinner during import. Error handling with confirm popup for corrupt/incompatible files. Success popup on completion. Added 4 translation keys. Added import icon CSS for light and dark themes. Browser verified: all 4 items visible (Local files, Data location, Export vault, Import data)."
     },
     {
       "id": "US-020",

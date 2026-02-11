@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Title, Label, Button, Icon } from 'Component';
-import { I, C, S, U, translate, analytics, Action } from 'Lib';
+import { I, C, S, U, J, translate, analytics, Action, Preview } from 'Lib';
 import { observer } from 'mobx-react';
 
 interface Props extends I.PageSettingsComponent {
@@ -15,6 +15,7 @@ const PageMainSettingsDataIndex = observer(class PageMainSettingsDataIndex exten
 
 		this.onOffload = this.onOffload.bind(this);
 		this.onExportVault = this.onExportVault.bind(this);
+		this.onImportVault = this.onImportVault.bind(this);
 	};
 
 	render () {
@@ -68,6 +69,20 @@ const PageMainSettingsDataIndex = observer(class PageMainSettingsDataIndex exten
 						</div>
 						<div className="side right">
 							<Button color="blank" className="c28" text={translate('commonExport')} onClick={this.onExportVault} />
+						</div>
+					</div>
+
+					<div className="item">
+						<div className="side left">
+							<Icon className="import" />
+
+							<div className="txt">
+								<Title text={translate('popupSettingsDataImportVaultTitle')} />
+								<Label text={translate('popupSettingsDataImportVaultDescription')} />
+							</div>
+						</div>
+						<div className="side right">
+							<Button color="blank" className="c28" text={translate('commonImport')} onClick={this.onImportVault} />
 						</div>
 					</div>
 				</div>
@@ -141,6 +156,40 @@ const PageMainSettingsDataIndex = observer(class PageMainSettingsDataIndex exten
 				S.Popup.open('confirm', {
 					data: {
 						title: translate('popupSettingsDataExportVaultSuccess'),
+						textConfirm: translate('commonOk'),
+						canCancel: false,
+					}
+				});
+			});
+		});
+	};
+
+	onImportVault () {
+		const { setLoading } = this.props;
+		const extensions = J.Constant.fileExtension.import[I.ImportType.Protobuf];
+
+		Action.openFileDialog({ extensions }, (paths: string[]) => {
+			setLoading(true);
+
+			Preview.toastShow({ text: translate('toastImportStart') });
+
+			C.ObjectImport(S.Common.space, { paths }, [], true, I.ImportType.Protobuf, I.ImportMode.IgnoreErrors, false, false, false, false, (message: any) => {
+				setLoading(false);
+
+				if (message.error.code) {
+					S.Popup.open('confirm', {
+						data: {
+							title: translate('popupSettingsDataImportVaultError'),
+							textConfirm: translate('commonOk'),
+							canCancel: false,
+						}
+					});
+					return;
+				};
+
+				S.Popup.open('confirm', {
+					data: {
+						title: translate('popupSettingsDataImportVaultSuccess'),
 						textConfirm: translate('commonOk'),
 						canCancel: false,
 					}

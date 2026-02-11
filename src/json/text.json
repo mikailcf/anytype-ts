@@ -1058,6 +1058,10 @@
 	"popupSettingsDataExportVaultDescription": "Export all data in your vault to a file for backup or portability",
 	"popupSettingsDataExportVaultSuccess": "Vault exported successfully",
 	"popupSettingsDataExportVaultError": "Export failed. Please try again.",
+	"popupSettingsDataImportVaultTitle": "Import data",
+	"popupSettingsDataImportVaultDescription": "Import data from a previously exported vault backup",
+	"popupSettingsDataImportVaultSuccess": "Data imported successfully",
+	"popupSettingsDataImportVaultError": "Import failed. The file may be corrupt or incompatible.",
 
 	"popupSettingsDeleteTitle1": "1. You have 30 days to cancel vault deletion",
 	"popupSettingsDeleteText1": "We're sorry to see you go. Once you request your vault to be deleted, you have 30 days to cancel this request. After 30 days, your vault data is permanently removed from the backup node, you won't be able to sign into Anytype on new devices.",

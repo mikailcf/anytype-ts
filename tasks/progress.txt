@@ -303,3 +303,27 @@
   - Reusable CDP helper scripts: `.playwright-mcp/cdp.js` (eval expressions) and `.playwright-mcp/screenshot.js` (capture screenshots)
 
 ---
+
+## 2026-02-10 - US-019
+- What was implemented: Added vault import functionality to Settings > Data Management
+- Files changed:
+  - `src/ts/component/page/main/settings/data/index.tsx` — Added Import data action item and `onImportVault` handler using `Action.openFileDialog` + `C.ObjectImport` with Protobuf format
+  - `src/json/text.json` — Added 4 translation keys (popupSettingsDataImportVaultTitle, Description, Success, Error)
+  - `src/scss/page/main/settings.scss` — Added `.icon.import` background-image rule
+  - `src/scss/theme/dark/page.scss` — Added `.icon.import` dark theme rule
+  - `tasks/prd.json` — Marked US-019 as passing
+- **Key decisions:**
+  - Used `C.ObjectImport` directly instead of `Action.import()` because `Action.import` returns early on gRPC error without calling the callback, so `setLoading(false)` would never fire (same pattern as export in US-018)
+  - Used `Action.openFileDialog` with protobuf extensions from `J.Constant.fileExtension.import[I.ImportType.Protobuf]` (`['zip', 'pb', 'json']`)
+  - Shows toast notification when import starts (reusing existing `toastImportStart` key), loading spinner during import
+  - Error handling: shows confirm popup with error message for corrupt/incompatible files
+  - Success: shows success confirm popup
+  - Used `I.ImportMode.IgnoreErrors` to be lenient with partial imports (same as existing import infrastructure)
+- **Learnings for future iterations:**
+  - Import icon (`import.svg`) already exists in both `src/img/icon/settings/` and dark theme at `src/img/theme/dark/icon/settings/`
+  - `J.Constant.fileExtension.import` maps `I.ImportType` enum values to allowed file extensions — key `3` = Protobuf = `['zip', 'pb', 'json']`
+  - `Action.import()` in `action.ts` has a bug: on `message.error.code` it returns without calling the callback — always use `C.ObjectImport` directly when you need guaranteed cleanup (like `setLoading(false)`)
+  - The existing import page at `settings/import/index.tsx` handles multiple import formats (Notion, Markdown, HTML, etc.) — this vault import is a simplified single-action version specifically for Protobuf vault backups
+- **Browser verification:** Confirmed via CDP. Data settings page shows all 4 items: Local files, Data location, Export vault, Import data with description and Import button. No console errors. Icon renders correctly.
+
+---

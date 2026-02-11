@@ -349,6 +349,7 @@
         .icon.sites { background-image: url('~img/icon/settings/sites.svg'); }
         .icon.location { background-image: url('~img/icon/settings/location.svg'); }
         .icon.export { background-image: url('~img/icon/settings/export.svg'); }
+        .icon.import { background-image: url('~img/icon/settings/import.svg'); }
 
         .actionItems {
             .title { @include text-common; font-weight: 400; margin-bottom: 0; }

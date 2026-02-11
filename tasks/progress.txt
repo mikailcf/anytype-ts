@@ -21,6 +21,8 @@
 - The vault sidebar (vault.tsx) injects an update-progress item into the space list via getItems() when updateVersion or progress exists
 - **Browser testing:** Start heart server with TWO ports: `anytype-heart/dist/server 127.0.0.1:0 127.0.0.1:0` — the first is gRPC, the second is the **gRPC-web proxy** (look for `gRPC Web proxy started at:` in stdout). Use the **web proxy** address for `ANYTYPE_USE_SIDE_SERVER`. Then start Electron: `SERVER_PORT=8080 ANYTYPE_USE_SIDE_SERVER=http://127.0.0.1:<WEB_PROXY_PORT> npx electron . --remote-debugging-port=9222`. Must call `C.InitialSetParameters` before AccountCreate when using external server — call it via CDP on first launch, then restart Electron (the server remembers ISP was called). Access internal modules via `webpackChunkanytype.push([['_'], {}, function(req) { __webpack_require__ = req; }])`
 - **Browser testing navigation:** To navigate to settings pages via CDP: find the Action module via webpack (`m.Action && m.Action.openSettings`), then call `Action.openSettings('pageId', 'settings')`
+- **anytype-heart LocalOnly checks:** Many components check `config.IsLocalOnlyMode()` — file sync, push notifications, payments, email collector, sync status, indexer. NetworkMode is forced in account_create.go, account_select.go, account_stop.go. Production node config is in config/nodes_production.go (embedded YAML, now empty)
+- **anytype-heart localdiscovery:** Has separate builds for desktop (localdiscovery.go) and Android (localdiscovery_android.go) — changes must be made to both
 
 ---
 
@@ -344,5 +346,33 @@
 - **Learnings for future iterations:**
   - When stubbing a page to return null (like delete.tsx), also remove it from the Components map and sidebar subPages — otherwise it becomes a reachable route that renders nothing
   - The phrase settings page had delete.tsx as a subPage even though the navigation button to it was already removed in US-014 — always check both the component registration and the sidebar references
+
+---
+
+## 2026-02-11 - US-021
+- What was implemented: Removed network sync and P2P from anytype-heart middleware for offline-only mode
+- Files changed (target repo: anytype-heart):
+  - `core/application/account_create.go` — Force NetworkMode.LocalOnly, ignore client-requested NetworkMode
+  - `core/application/account_select.go` — Force NetworkMode.LocalOnly in start()
+  - `core/application/account_stop.go` — Force NetworkMode.LocalOnly in AccountChangeNetworkConfigAndRestart, removed custom config validation code, removed unused nodeconf/yaml imports
+  - `core/anytype/config/nodes_production.go` — Replaced embedded production.yml with empty byte slice (no nodes to connect to)
+  - `core/configfetcher/configfetcher.go` — Added IsLocalOnlyMode() check to skip periodic coordinator status polling and Refetch()
+  - `space/spacecore/localdiscovery/localdiscovery.go` — Added `disabled` field, skip mDNS server start/browsing/interface refresh in LocalOnly mode
+  - `space/spacecore/localdiscovery/localdiscovery_android.go` — Same disabled flag and checks for Android build
+- **Components already protected by existing LocalOnly checks (no changes needed):**
+  - File sync service (filesync/service.go, upload.go, delete.go) — skips Run(), AddFile(), DeleteFile()
+  - Push notification service — skips Run()
+  - Payments service — skips fetchAndUpdate(), fetchAndUpdateV2()
+  - Email collector — skips Run(), periodicUpdateEmail()
+  - Space sync status — sends Offline/LocalOnly status
+  - Indexer — sets sync status to NetworkError
+- **Build results:** `go build ./...` passes. All passable tests pass (3 pre-existing failures in core/block/editor/file, core/files/filedownloader, core/files/filesync/filequeue due to Go version incompatibility with testing/synctest — confirmed same failures on develop branch).
+- **Learnings for future iterations:**
+  - anytype-heart already has extensive LocalOnly support — many components check `IsLocalOnlyMode()`. The key missing pieces were: configfetcher (periodic coordinator polling), local discovery (mDNS), and the forced network mode in account operations
+  - The configfetcher uses `app.MustComponent[interface]` pattern for DI — define a local interface (e.g., `networkModeGetter`) to avoid importing the full config package
+  - localdiscovery has separate implementations for desktop (localdiscovery.go) and Android (localdiscovery_android.go) — both need the same changes
+  - The desktop localdiscovery's Run() logic: `if manualStart && len(nodeConf.Nodes) > 0` would NOT prevent starting in LocalOnly mode (Nodes is empty), so a separate `disabled` flag is needed
+  - Production node config is embedded via `//go:embed nodes/production.yml` — removing the embed directive and setting `var nodesConfYmlBytes []byte` (nil) is sufficient; the LocalOnly case in GetNodeConfWithError already handles empty config
+  - AccountChangeNetworkConfigAndRestart was a significant gap — it could re-enable network mode without the LocalOnly override
 
 ---

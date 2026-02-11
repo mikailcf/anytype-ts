@@ -350,8 +350,8 @@
         "Integration tests pass with no network calls"
       ],
       "priority": 21,
-      "passes": false,
-      "notes": "Target repo: anytype-heart. Critical path — must be done for true offline-only."
+      "passes": true,
+      "notes": "Done. Forced NetworkMode.LocalOnly in AccountCreate, AccountSelect, and AccountChangeNetworkConfigAndRestart (core/application/). Removed embedded production node config (config/nodes_production.go — empty byte slice, no embedded YAML). Added LocalOnly check to configfetcher (skips periodic coordinator status polling). Added disabled flag to localdiscovery (both desktop and Android — skips mDNS server start, peer browsing, interface refresh). File sync, push notifications, payments, email collector, and sync status already had LocalOnly checks. Build succeeds (go build ./...). All passable tests pass (3 pre-existing failures unrelated to changes — Go version incompatibility with testing/synctest)."
     },
     {
       "id": "US-022",

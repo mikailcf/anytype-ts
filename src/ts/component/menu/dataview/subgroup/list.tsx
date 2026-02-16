@@ -45,7 +45,9 @@ const MenuSubGroupList = observer(class MenuSubGroupList extends React.Component
 		const Item = (item: any) => {
 			const canHide = allowedView;
 			const canEdit = !readonly && allowedView;
-			const subId = S.Record.getSubId(rootId, [ blockId, item.id ].join(':'));
+			// Use the same subId pattern as the subscription for Object relations
+			// This ensures Cell can find the object details that were subscribed
+			const subId = `${S.Record.getSubId(rootId, blockId)}/dep`;
 			const cn = [ 'item' ];
 			const head: any = {};
 

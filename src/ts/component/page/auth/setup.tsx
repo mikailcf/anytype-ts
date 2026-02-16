@@ -39,12 +39,25 @@ const PageAuthSetup = observer(forwardRef<{}, I.PageComponent>((props, ref) => {
 		});
 	};
 
-	const select = (accountId: string, animate: boolean) => {
+	const select = (accountId: string, animate: boolean, skipMigration: boolean = false) => {
 		const { dataPath } = S.Common;
 
 		// Offline-only mode: always use Local network mode
 		C.AccountSelect(accountId, dataPath, I.NetworkMode.Local, '', (message: any) => {
 			const { account } = message;
+
+			if (message.error.code == J.Error.Code.ACCOUNT_STORE_NOT_MIGRATED && !skipMigration) {
+				// Auto-migrate in offline-only mode instead of showing modal
+				C.AccountMigrate(accountId, dataPath, (migrateMessage: any) => {
+					if (migrateMessage.error.code) {
+						setErrorHandler(migrateMessage.error);
+						return;
+					};
+					// Retry account selection after successful migration
+					select(accountId, animate, true);
+				});
+				return;
+			};
 
 			if (setErrorHandler(message.error) || !account) {
 				return;
@@ -54,7 +67,7 @@ const PageAuthSetup = observer(forwardRef<{}, I.PageComponent>((props, ref) => {
 			S.Common.configSet(account.config, false);
 
 			const spaceId = Storage.get('spaceId');
-			const routeParam = { 
+			const routeParam = {
 				replace: true,
 				animate,
 				onFadeIn: () => {
@@ -62,7 +75,7 @@ const PageAuthSetup = observer(forwardRef<{}, I.PageComponent>((props, ref) => {
 					const chatsOnboarding = Storage.get('chatsOnboarding');
 
 					[
-						I.SurveyType.Register, 
+						I.SurveyType.Register,
 						I.SurveyType.Object,
 						I.SurveyType.Pmf,
 					].forEach(it => Survey.check(it));
@@ -95,13 +108,13 @@ const PageAuthSetup = observer(forwardRef<{}, I.PageComponent>((props, ref) => {
 					Action.checkDiskSpace(cb1);
 				},
 			};
-		
+
 			if (spaceId) {
 				U.Router.switchSpace(spaceId, '', false, routeParam, true);
 			} else {
 				U.Router.go('/main/void/select', routeParam);
 			};
-			
+
 			U.Data.onInfo(account.info);
 			U.Data.onAuthOnce(false);
 
@@ -115,8 +128,10 @@ const PageAuthSetup = observer(forwardRef<{}, I.PageComponent>((props, ref) => {
 		};
 
 		if (error.code == J.Error.Code.ACCOUNT_STORE_NOT_MIGRATED) {
-			U.Router.go('/auth/migrate', {});
-			return;
+			// This is now handled in select() with auto-migration
+			// If we get here, migration failed
+			setError(error);
+			return U.Common.checkErrorCommon(error.code);
 		};
 
 		setError(error);

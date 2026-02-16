@@ -48,13 +48,9 @@ const PageAuthLogin = observer(forwardRef<{}, I.PageComponent>((props, ref: any)
 
 				S.Auth.accountListClear();
 				U.Data.createSession(phrase, '', '', () => {
-					// Offline-only: use stored account ID instead of network-based AccountRecover
-					const accountId = Storage.get('accountId');
-					if (accountId) {
-						S.Auth.accountAdd({ id: accountId });
-					} else {
-						setErrorHandler(1, translate('pageAuthLoginInvalidPhrase'));
-					};
+					C.AccountRecover(message => {
+						setErrorHandler(message.error.code, message.error.description);
+					});
 				});
 			});
 		});
@@ -118,7 +114,59 @@ const PageAuthLogin = observer(forwardRef<{}, I.PageComponent>((props, ref: any)
 		};
 
 		if (code == J.Error.Code.ACCOUNT_STORE_NOT_MIGRATED) {
-			U.Router.go('/auth/migrate', {});
+			// Auto-migrate in offline-only mode instead of showing modal
+			const account = accounts[0];
+			if (account?.id) {
+				C.AccountMigrate(account.id, S.Common.dataPath, (message: any) => {
+					if (message.error.code) {
+						setError(message.error.description || text);
+						phraseRef.current?.setError(true);
+						submitRef.current?.setLoading(false);
+						S.Auth.accountListClear();
+					} else {
+						// Retry account selection after successful migration
+						C.AccountSelect(account.id, S.Common.dataPath, I.NetworkMode.Local, '', (selectMessage: any) => {
+							if (selectMessage.error.code || !selectMessage.account) {
+								setError(selectMessage.error.description || text);
+								phraseRef.current?.setError(true);
+								submitRef.current?.setLoading(false);
+								S.Auth.accountListClear();
+								return;
+							};
+
+							S.Auth.accountSet(selectMessage.account);
+							S.Common.configSet(selectMessage.account.config, false);
+
+							const spaceId = Storage.get('spaceId');
+							const routeParam = {
+								replace: true,
+								onFadeIn: () => {
+									Action.checkDiskSpace();
+								},
+							};
+
+							if (spaceId) {
+								U.Router.switchSpace(spaceId, '', false, routeParam, true);
+							} else {
+								Animation.from(() => {
+									U.Data.onAuthWithoutSpace(routeParam);
+									isSelecting.current = false;
+								});
+							};
+
+							U.Data.onInfo(selectMessage.account.info);
+							U.Data.onAuthOnce(true);
+
+							analytics.event('SelectAccount', { middleTime: selectMessage.middleTime });
+						});
+					};
+				});
+			} else {
+				setError(text);
+				phraseRef.current?.setError(true);
+				submitRef.current?.setLoading(false);
+				S.Auth.accountListClear();
+			};
 			return;
 		};
 

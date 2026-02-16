@@ -250,6 +250,12 @@ export const AccountRevertDeletion = (callBack?: (message: any) => void) => {
 	dispatcher.request(AccountRevertDeletion.name, new Empty(), callBack);
 };
 
+export const AccountRecover = (callBack?: (message: any) => void) => {
+	const request = new Rpc.Account.Recover.Request();
+
+	dispatcher.request(AccountRecover.name, request, callBack);
+};
+
 export const AccountRecoverFromLegacyExport = (path: string, rootPath: string, icon: number, callBack?: (message: any) => void) => {
 	const request = new Rpc.Account.RecoverFromLegacyExport.Request();
 

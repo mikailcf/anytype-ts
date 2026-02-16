@@ -591,8 +591,7 @@ class Relation {
 
 	/**
 	 * Gets sub-group types for a view type (swimlanes/vertical grouping).
-	 * Uses the same types as primary grouping since the backend's ObjectGroupsSubscribe
-	 * only supports Select, MultiSelect, and Checkbox relation formats.
+	 * Supports Select, MultiSelect, Checkbox, and Object relation formats for Board views.
 	 * @param {I.ViewType} type - The view type.
 	 * @returns {RelationType[]} The relation types allowed for sub-grouping.
 	 */
@@ -601,7 +600,7 @@ class Relation {
 
 		switch (type) {
 			case I.ViewType.Board: {
-				types = [ I.RelationType.Select, I.RelationType.MultiSelect, I.RelationType.Checkbox ];
+				types = [ I.RelationType.Select, I.RelationType.MultiSelect, I.RelationType.Checkbox, I.RelationType.Object ];
 				break;
 			};
 		};

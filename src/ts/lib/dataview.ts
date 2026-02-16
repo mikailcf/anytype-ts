@@ -335,6 +335,10 @@ class Dataview {
 						option = S.Detail.get(J.Constant.subId.option, value);
 						bgColor = option?.color;
 						break;
+
+					case I.RelationType.Object:
+						value = Relation.getArrayValue(value);
+						break;
 				};
 
 				it.isHidden = groupOrder[it.id]?.isHidden;
@@ -371,6 +375,14 @@ class Dataview {
 			case I.RelationType.MultiSelect: {
 				value = Relation.getArrayValue(value);
 				filter.condition = value.length ? I.FilterCondition.ExactIn : I.FilterCondition.Empty;
+				filter.value = value.length ? value : null;
+				break;
+			};
+
+			case I.RelationType.Object: {
+				value = Relation.getArrayValue(value);
+				// Use AllIn for Object relations since ExactIn relies on relation options which don't exist for objects
+				filter.condition = value.length ? I.FilterCondition.AllIn : I.FilterCondition.Empty;
 				filter.value = value.length ? value : null;
 				break;
 			};

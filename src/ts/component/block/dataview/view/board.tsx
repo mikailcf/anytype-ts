@@ -207,9 +207,25 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 
 				return {
 					id: it.id,
-					value: it.value,
+					value,
 				};
 			});
+
+			// For Object relations, subscribe to the referenced objects to load their details
+			if (relation.format == I.RelationType.Object) {
+				const objectIds = subGroups.flatMap(g => Relation.getArrayValue(g.value)).filter(id => id);
+				if (objectIds.length) {
+					const depSubId = `${S.Record.getSubId(rootId, block.id)}/dep`;
+					U.Subscription.subscribeIds({
+						subId: depSubId,
+						ids: objectIds,
+						noDeps: true,
+					}, () => {
+						this.setState({ subGroups });
+					});
+					return;
+				};
+			};
 
 			this.setState({ subGroups });
 		});

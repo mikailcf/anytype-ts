@@ -39,6 +39,7 @@ const Swimlane = observer(class Swimlane extends React.Component<Props, State> {
 		const relation = S.Record.getRelationByKey(view.subGroupRelationKey);
 		const cn = [ 'swimlane' ];
 		const head = {};
+		const depSubId = `${S.Record.getSubId(rootId, block.id)}/dep`;
 
 		if (isCollapsed) {
 			cn.push('isCollapsed');
@@ -59,7 +60,7 @@ const Swimlane = observer(class Swimlane extends React.Component<Props, State> {
 							<Cell
 								id={`swimlane-head-${subGroupId}`}
 								rootId={rootId}
-								subId=""
+								subId={depSubId}
 								block={block}
 								relationKey={view.subGroupRelationKey}
 								viewType={I.ViewType.Board}

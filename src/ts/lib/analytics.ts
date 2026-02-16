@@ -1,4 +1,4 @@
-import { I } from 'Lib';
+import { I, C, U } from 'Lib';
 
 class Analytics {
 
@@ -98,7 +98,24 @@ class Analytics {
 
 	init (_options?: any) {};
 
-	setVersion () {};
+	setVersion () {
+		const platform = U.Common.getPlatform();
+		const electron = U.Common.getElectron();
+		const { version } = electron;
+
+		if (!version) {
+			return;
+		};
+
+		// Extract version string (e.g., "0.50.11")
+		let ret = String(version.app || '').split('-');
+		if (ret.length) {
+			ret = [ ret[0] ];
+		};
+
+		// Call InitialSetParameters - required by heart middleware before account operations
+		C.InitialSetParameters(platform, ret.join('-'), '', 'warn', true, false);
+	};
 
 	profile (_id: string, _networkId: string) {};
 

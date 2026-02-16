@@ -114,7 +114,10 @@ const App: FC = () => {
 
 		dispatcher.init(getGlobal('serverAddress'));
 		keyboard.init();
-		
+
+		// Initialize middleware parameters - required before account operations
+		analytics.setVersion();
+
 		registerIpcEvents();
 
 		Renderer.send('appOnLoad');

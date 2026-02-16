@@ -3,7 +3,7 @@ import { observer } from 'mobx-react';
 import { arrayMove } from '@dnd-kit/sortable';
 import $ from 'jquery';
 import raf from 'raf';
-import { I, C, S, U, J, Dataview, keyboard, translate, Relation } from 'Lib';
+import { I, C, S, U, J, Dataview, keyboard, translate, Relation, Storage } from 'Lib';
 import Empty from '../empty';
 import Column from './board/column';
 import Swimlane from './board/swimlane';
@@ -43,12 +43,16 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 
 	render () {
 		const { rootId, block, getView, className, onViewSettings } = this.props;
-		const { subGroups } = this.state;
 		const view = getView();
 		const groups = this.getGroups(false);
 		const relation = S.Record.getRelationByKey(view.groupRelationKey);
 		const subGroupRelation = view.subGroupRelationKey ? S.Record.getRelationByKey(view.subGroupRelationKey) : null;
-		const hasSubGroups = subGroupRelation && subGroups.length > 0;
+
+		// Read sub-groups directly from the store to get MobX reactivity
+		const subGroups = S.Record.getGroups(rootId, block.id + '-subgroups');
+		// Filter out hidden sub-groups
+		const visibleSubGroups = (subGroups || []).filter((it: any) => !it.isHidden);
+		const hasSubGroups = subGroupRelation && visibleSubGroups.length > 0;
 		const cn = [ 'viewContent', className ];
 
 		if (hasSubGroups) {
@@ -78,7 +82,7 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 					<div className={cn.join(' ')}>
 						{hasSubGroups ? (
 							<div id="swimlanes" className="swimlanes">
-								{subGroups.map((subGroup: any, i: number) => (
+								{visibleSubGroups.map((subGroup: any, i: number) => (
 									<Swimlane
 										key={`board-swimlane-${subGroup.id}`}
 										{...this.props}
@@ -192,6 +196,9 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 				return;
 			};
 
+			// Get hidden sub-group IDs from storage
+			const hiddenIds = Storage.getViewSubGroupHidden(view.id);
+
 			const subGroups = (message.groups || []).map((it: any) => {
 				let value: any = it.value;
 
@@ -208,8 +215,12 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 				return {
 					id: it.id,
 					value,
+					isHidden: hiddenIds.includes(it.id),
 				};
 			});
+
+			// Store all sub-groups in Record store for the sub-group menu to access
+			S.Record.groupsSet(rootId, block.id + '-subgroups', subGroups);
 
 			// For Object relations, subscribe to the referenced objects to load their details
 			if (relation.format == I.RelationType.Object) {

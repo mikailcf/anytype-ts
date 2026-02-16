@@ -54,6 +54,7 @@ import MenuDataviewRelationList from './dataview/relation/list';
 import MenuDataviewRelationEdit from './dataview/relation/edit';
 import MenuDataviewGroupList from './dataview/group/list';
 import MenuDataviewGroupEdit from './dataview/group/edit';
+import MenuDataviewSubGroupList from './dataview/subgroup/list';
 import MenuDataviewObjectList from './dataview/object/list';
 import MenuDataviewObjectValues from './dataview/object/values';
 import MenuDataviewFileList from './dataview/file/list';
@@ -139,6 +140,7 @@ const Components: any = {
 	dataviewRelationEdit:	 MenuDataviewRelationEdit,
 	dataviewGroupList:		 MenuDataviewGroupList,
 	dataviewGroupEdit:		 MenuDataviewGroupEdit,
+	dataviewSubGroupList:	 MenuDataviewSubGroupList,
 	dataviewObjectList:		 MenuDataviewObjectList,
 	dataviewObjectValues:	 MenuDataviewObjectValues,
 	dataviewFileList:		 MenuDataviewFileList,

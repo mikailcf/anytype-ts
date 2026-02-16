@@ -1,5 +1,5 @@
 import { observable, action, set, intercept, makeObservable } from 'mobx';
-import { S, I, M, U, J, Dataview, Relation } from 'Lib';
+import { S, I, M, U, J, Dataview, Relation, Storage } from 'Lib';
 
 enum KeyMapType {
 	Relation = 'relation',
@@ -153,9 +153,14 @@ class RecordStore {
 		const key = this.getId(rootId, blockId);
 		const views = this.getViews(rootId, blockId);
 
-		list = list.map((it: I.View) => { 
+		list = list.map((it: I.View) => {
 			it.relations = Dataview.viewGetRelations(rootId, blockId, it);
-			return new M.View(it); 
+			// Restore subGroupRelationKey from local storage (frontend-only field)
+			const storedSubGroup = Storage.getViewSubGroup(it.id);
+			if (storedSubGroup) {
+				it.subGroupRelationKey = storedSubGroup;
+			};
+			return new M.View(it);
 		});
 
 		for (const item of list) {
@@ -166,7 +171,7 @@ class RecordStore {
 				views.push(observable(item));
 			};
 		};
-		
+
 		this.viewMap.set(key, observable.array(views));
 	};
 

@@ -1,5 +1,5 @@
 import { arrayMove } from '@dnd-kit/sortable';
-import { I, M, C, S, U, J, Relation, translate } from 'Lib';
+import { I, M, C, S, U, J, Relation, Storage, translate } from 'Lib';
 
 class Dataview {
 
@@ -692,6 +692,11 @@ class Dataview {
 		const view = U.Common.objectCopy(S.Record.getView(rootId, blockId, viewId));
 		if (view && view.id) {
 			const updatedView = Object.assign(view, param);
+
+			// Persist subGroupRelationKey to local storage (frontend-only field)
+			if (param.subGroupRelationKey !== undefined) {
+				Storage.setViewSubGroup(view.id, param.subGroupRelationKey);
+			};
 
 			// Update local store immediately for frontend-only fields like subGroupRelationKey
 			S.Record.viewUpdate(rootId, blockId, updatedView);

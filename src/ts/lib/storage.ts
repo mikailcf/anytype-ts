@@ -17,6 +17,7 @@ const SPACE_KEYS = [
 	'focus',
 	'openUrl',
 	'redirectInvite',
+	'viewSubGroup',
 ];
 
 const LOCAL_KEYS = [
@@ -720,7 +721,28 @@ class Storage {
 		this.delete('shortcuts', this.isLocal('shortcuts'));
 		keyboard.initShortcuts();
 	};
-	
+
+	/**
+	 * Sets the sub-group relation key for a view.
+	 * @param {string} viewId - The view ID.
+	 * @param {string} subGroupRelationKey - The sub-group relation key.
+	 */
+	setViewSubGroup (viewId: string, subGroupRelationKey: string) {
+		const obj = this.get('viewSubGroup', this.isLocal('viewSubGroup')) || {};
+		obj[viewId] = subGroupRelationKey;
+		this.set('viewSubGroup', obj, this.isLocal('viewSubGroup'));
+	};
+
+	/**
+	 * Gets the sub-group relation key for a view.
+	 * @param {string} viewId - The view ID.
+	 * @returns {string} The sub-group relation key.
+	 */
+	getViewSubGroup (viewId: string): string {
+		const obj = this.get('viewSubGroup', this.isLocal('viewSubGroup')) || {};
+		return obj[viewId] || '';
+	};
+
 };
 
 export default new Storage();

@@ -173,7 +173,7 @@ export interface ViewComponent {
 	getEmpty?(type: string): any;
 	getEmptyView?(view: I.ViewType): any;
 	getSubId?(): string;
-	onRecordAdd?: (e: any, dir: number, groupId?: string) => void;
+	onRecordAdd?: (e: any, dir: number, groupId?: string, menuParam?: any, idx?: number, subGroupValue?: any) => void;
 	onTemplateAdd?: () => void;
 	onSortAdd?: (item: any, callBack?: () => void) => void;
 	onFilterAdd?: (item: any, callBack?: () => void) => void;
@@ -270,7 +270,7 @@ export interface Cell {
 	onMouseEnter?(e: any): void;
 	onMouseLeave?(e: any): void;
 	onCellChange?(id: string, key: string, value: any, callBack?: (message: any) => void): void;
-	onRecordAdd?(e: any, dir: number, groupId?: string, menuParam?: any, idx?: number): void;
+	onRecordAdd?(e: any, dir: number, groupId?: string, menuParam?: any, idx?: number, subGroupValue?: any): void;
 	cellPosition?(cellId: string): void;
 	elementMapper?(relation: any, item: any): any;
 };

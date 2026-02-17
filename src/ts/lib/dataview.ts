@@ -543,9 +543,10 @@ class Dataview {
 	 * @param {string} objectId - The object ID.
 	 * @param {string} [viewId] - The view ID.
 	 * @param {string} [groupId] - The group ID.
+	 * @param {any} [subGroupValue] - The sub-group value to set.
 	 * @returns {any} The details object.
 	 */
-	getDetails (rootId: string, blockId: string, objectId: string, viewId?: string, groupId?: string): any {
+	getDetails (rootId: string, blockId: string, objectId: string, viewId?: string, groupId?: string, subGroupValue?: any): any {
 		const relations = Relation.getSetOfObjects(rootId, objectId, I.ObjectLayout.Relation);
 		const view = this.getView(rootId, blockId, viewId);
 		const conditions = [
@@ -585,8 +586,13 @@ class Dataview {
 			};
 		};
 
+		// Handle sub-group relation for board view - use value directly
+		if (view.subGroupRelationKey && subGroupValue !== undefined) {
+			details[view.subGroupRelationKey] = subGroupValue;
+		};
+
 		for (const filter of view.filters) {
-			if (!conditions.includes(filter.condition) || (filter.relationKey == view.groupRelationKey)) {
+			if (!conditions.includes(filter.condition) || (filter.relationKey == view.groupRelationKey) || (filter.relationKey == view.subGroupRelationKey)) {
 				continue;
 			};
 

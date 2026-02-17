@@ -597,12 +597,12 @@ const BlockDataview = observer(class BlockDataview extends React.Component<Props
 		return Dataview.getTypeId(rootId, block.id, objectId, view.id);
 	};
 
-	getDetails (groupId?: string): any {
+	getDetails (groupId?: string, subGroupValue?: any): any {
 		const { rootId, block } = this.props;
 		const objectId = this.getObjectId();
 		const view = this.getView();
 
-		return Dataview.getDetails(rootId, block.id, objectId, view.id, groupId);
+		return Dataview.getDetails(rootId, block.id, objectId, view.id, groupId, subGroupValue);
 	};
 
 	getMenuParam (e: any, dir: number): any {
@@ -647,7 +647,7 @@ const BlockDataview = observer(class BlockDataview extends React.Component<Props
 		return '';
 	};
 
-	recordCreate (e: any, template: any, dir: number, groupId?: string, idx?: number) {
+	recordCreate (e: any, template: any, dir: number, groupId?: string, idx?: number, subGroupValue?: any) {
 		const { rootId } = this.props;
 		const objectId = this.getObjectId();
 		const subId = this.getSubId(groupId);
@@ -658,7 +658,7 @@ const BlockDataview = observer(class BlockDataview extends React.Component<Props
 			return;
 		};
 
-		const details = this.getDetails(groupId);
+		const details = this.getDetails(groupId, subGroupValue);
 		const flags: I.ObjectFlag[] = [ I.ObjectFlag.SelectTemplate ];
 		const isViewGraph = view.type == I.ViewType.Graph;
 		const isViewCalendar = view.type == I.ViewType.Calendar;
@@ -767,7 +767,7 @@ const BlockDataview = observer(class BlockDataview extends React.Component<Props
 		};
 	};
 
-	onRecordAdd (e: any, dir: number, groupId?: string, menuParam?: any, idx?: number) {
+	onRecordAdd (e: any, dir: number, groupId?: string, menuParam?: any, idx?: number, subGroupValue?: any) {
 		if (e.persist) {
 			e.persist();
 		};
@@ -783,7 +783,7 @@ const BlockDataview = observer(class BlockDataview extends React.Component<Props
 		if (type && (U.Object.isBookmarkLayout(type.recommendedLayout) || U.Object.isChatLayout(type.recommendedLayout))) {
 			this.onObjectMenu(e, dir, type.recommendedLayout, groupId, menuParam);
 		} else {
-			this.recordCreate(e, { id: this.getDefaultTemplateId() }, dir, groupId, idx);
+			this.recordCreate(e, { id: this.getDefaultTemplateId() }, dir, groupId, idx, subGroupValue);
 		};
 	};
 

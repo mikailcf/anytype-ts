@@ -50,8 +50,8 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 
 		// Read sub-groups directly from the store to get MobX reactivity
 		const subGroups = S.Record.getGroups(rootId, block.id + '-subgroups');
-		// Filter out hidden sub-groups
-		const visibleSubGroups = (subGroups || []).filter((it: any) => !it.isHidden);
+		// Filter out hidden sub-groups and apply order
+		const visibleSubGroups = this.applySubGroupOrder(view.id, (subGroups || []).filter((it: any) => !it.isHidden));
 		const hasSubGroups = subGroupRelation && visibleSubGroups.length > 0;
 		const cn = [ 'viewContent', className ];
 
@@ -88,10 +88,13 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 										{...this.props}
 										subGroupId={subGroup.id}
 										subGroupValue={subGroup.value}
+										subGroupIndex={i}
+										subGroupCount={visibleSubGroups.length}
 										groups={groups}
 										columnRefs={this.columnRefs}
 										onDragStartColumn={this.onDragStartColumn}
 										onDragStartCard={this.onDragStartCard}
+										onSubGroupOrderChange={() => this.forceUpdate()}
 										getSubIdForSwimlane={this.getSubIdWithSubGroup}
 									/>
 								))}
@@ -630,6 +633,32 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 		const { rootId, block } = this.props;
 
 		return S.Record.getGroupSubId(rootId, block.id, `${groupId}-${subGroupId}`);
+	};
+
+	applySubGroupOrder (viewId: string, subGroups: any[]): any[] {
+		if (!subGroups.length) {
+			return subGroups;
+		};
+
+		const order = Storage.getViewSubGroupOrder(viewId);
+		if (!order.length) {
+			return subGroups;
+		};
+
+		const orderMap: any = {};
+		order.forEach((id, i) => orderMap[id] = i);
+
+		return [...subGroups].sort((a, b) => {
+			const idxA = orderMap[a.id];
+			const idxB = orderMap[b.id];
+
+			if (idxA !== undefined && idxB !== undefined) {
+				return idxA - idxB;
+			};
+			if (idxA !== undefined) return -1;
+			if (idxB !== undefined) return 1;
+			return 0;
+		});
 	};
 
 	resize () {

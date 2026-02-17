@@ -19,6 +19,7 @@ const SPACE_KEYS = [
 	'redirectInvite',
 	'viewSubGroup',
 	'viewSubGroupHidden',
+	'viewSubGroupOrder',
 ];
 
 const LOCAL_KEYS = [
@@ -762,6 +763,27 @@ class Storage {
 	 */
 	getViewSubGroupHidden (viewId: string): string[] {
 		const obj = this.get('viewSubGroupHidden', this.isLocal('viewSubGroupHidden')) || {};
+		return obj[viewId] || [];
+	};
+
+	/**
+	 * Sets the sub-group order for a view.
+	 * @param {string} viewId - The view ID.
+	 * @param {string[]} orderIds - The ordered sub-group IDs.
+	 */
+	setViewSubGroupOrder (viewId: string, orderIds: string[]) {
+		const obj = this.get('viewSubGroupOrder', this.isLocal('viewSubGroupOrder')) || {};
+		obj[viewId] = orderIds || [];
+		this.set('viewSubGroupOrder', obj, this.isLocal('viewSubGroupOrder'));
+	};
+
+	/**
+	 * Gets the sub-group order for a view.
+	 * @param {string} viewId - The view ID.
+	 * @returns {string[]} The ordered sub-group IDs.
+	 */
+	getViewSubGroupOrder (viewId: string): string[] {
+		const obj = this.get('viewSubGroupOrder', this.isLocal('viewSubGroupOrder')) || {};
 		return obj[viewId] || [];
 	};
 

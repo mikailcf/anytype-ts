@@ -72,9 +72,6 @@ const Swimlane = observer(class Swimlane extends React.Component<Props, State> {
 								withName={true}
 								placeholder={translate('commonUncategorized')}
 							/>
-							<span className="count">{this.getCount()}</span>
-						</div>
-						<div className="side right">
 							<Icon
 								id={`swimlane-${subGroupId}-more`}
 								className="more"

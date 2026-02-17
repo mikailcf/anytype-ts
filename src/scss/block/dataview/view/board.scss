@@ -17,11 +17,11 @@
 					.side.left { display: flex; align-items: center; gap: 0px 8px; flex: 1; }
 					.side.right { display: flex; align-items: center; flex-shrink: 0; }
 
-					.side.right .icon.more {
+					.icon.more {
 						width: 24px; height: 24px; background-size: 20px; border-radius: 4px;
 						background-image: url('~img/icon/menu/action/more0.svg'); opacity: 0; cursor: default;
 					}
-					.side.right .icon.more:hover, .side.right .icon.more.active { background-color: var(--color-shape-highlight-medium); }
+					.icon.more:hover, .icon.more.active { background-color: var(--color-shape-highlight-medium); }
 
 					.icon.arrow {
 						width: 20px; height: 20px; flex-shrink: 0; background-image: url('~img/arrow/select/dark.svg');
@@ -42,7 +42,7 @@
 					}
 				}
 				.swimlaneHead:hover { background: var(--color-shape-highlight-light); }
-				&:hover .swimlaneHead .side.right .icon.more { opacity: 1; }
+				&:hover .swimlaneHead .icon.more { opacity: 1; }
 
 				.swimlaneBody { padding: 8px 8px 16px 8px; overflow-x: auto; }
 				.swimlaneBody {

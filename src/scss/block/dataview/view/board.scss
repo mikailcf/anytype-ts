@@ -6,7 +6,7 @@
 		.viewContent.viewBoard {
 
 			/* Swimlanes (sub-group vertical sections) */
-			.swimlanes { display: flex; flex-direction: column; gap: 16px 0px; }
+			.swimlanes { display: flex; flex-direction: column; gap: 16px 0px; margin-right: 80px; }
 			.swimlane { border-radius: 8px; background: var(--color-bg-secondary); }
 			.swimlane {
 				.swimlaneHead {

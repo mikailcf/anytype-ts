@@ -246,6 +246,7 @@ export interface Cell {
 	relationKey?: string;
 	viewType: I.ViewType;
 	readonly?: boolean;
+	forcePlaceholder?: boolean;
 	canOpen?: boolean;
 	canEdit?: boolean;
 	pageContainer?: string;

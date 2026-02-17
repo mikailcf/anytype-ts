@@ -68,9 +68,10 @@ const Swimlane = observer(class Swimlane extends React.Component<Props, State> {
 								viewType={I.ViewType.Board}
 								getRecord={() => head}
 								readonly={true}
+								forcePlaceholder={true}
 								arrayLimit={4}
 								withName={true}
-								placeholder={translate('commonUncategorized')}
+								placeholder={translate('placeholderCellCommon')}
 							/>
 							<Icon
 								id={`swimlane-${subGroupId}-more`}

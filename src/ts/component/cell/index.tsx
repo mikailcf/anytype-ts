@@ -20,11 +20,11 @@ interface Props extends I.Cell {
 
 const Cell = observer(forwardRef<I.CellRef, Props>((props, ref) => {
 
-	const { 
+	const {
 		elementId, relationKey, recordId, getRecord, getView, idPrefix, pageContainer,
 		isInline, menuParam = {}, block, subId, rootId, onCellChange,
 		onMouseEnter, onMouseLeave, maxWidth, cellPosition, onClick, readonly, tooltipParam = {},
-		noInplace, editModeOn, viewType,
+		noInplace, editModeOn, viewType, forcePlaceholder,
 	} = props;
 	const view = getView ? getView() : null;
 	const record = getRecord(recordId);
@@ -492,7 +492,10 @@ const Cell = observer(forwardRef<I.CellRef, Props>((props, ref) => {
 		};
 
 		const canEdit = canCellEdit(relation, record);
-		return !canEdit ? translate(`placeholderCellCommon`) : (props.placeholder || translate(`placeholderCell${relation.format}`));
+		if (!canEdit) {
+			return forcePlaceholder ? (props.placeholder || translate(`placeholderCellCommon`)) : translate(`placeholderCellCommon`);
+		}
+		return props.placeholder || translate(`placeholderCell${relation.format}`);
 	};
 
 	const canCellEdit = (relation: any, record: any): boolean => {
@@ -516,15 +519,16 @@ const Cell = observer(forwardRef<I.CellRef, Props>((props, ref) => {
 	const id = Relation.cellId(idPrefix, relation.relationKey, record.id);
 	const canEdit = canCellEdit(relation, record);
 	const placeholder = getPlaceholder(relation, record);
-	const cn = [ 
-		'cellContent', 
+	const cn = [
+		'cellContent',
 		'c-' + relation.relationKey,
-		Relation.className(relation.format), 
-		(canEdit ? 'canEdit' : ''), 
+		Relation.className(relation.format),
+		(canEdit ? 'canEdit' : ''),
 		(relationKey == 'name' ? 'isName' : ''),
-		(!checkValue() ? 'isEmpty' : ''),
+		(!checkValue() && !forcePlaceholder ? 'isEmpty' : ''),
 		(editModeOn ? 'editModeOn' : ''),
 		(withMenu.current ? 'withMenu' : ''),
+		(forcePlaceholder ? 'withPlaceholder' : ''),
 	];
 
 	let CellComponent: any = null;

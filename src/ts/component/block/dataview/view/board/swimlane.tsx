@@ -116,11 +116,12 @@ const Swimlane = observer(class Swimlane extends React.Component<Props, State> {
 		e.preventDefault();
 		e.stopPropagation();
 
-		const { subGroupId, subGroupIndex, subGroupCount, getView, onSubGroupOrderChange } = this.props;
+		const { rootId, block, subGroupId, subGroupIndex, subGroupCount, getView, onSubGroupOrderChange } = this.props;
 		const view = getView();
 		const element = `#swimlane-${subGroupId}-more`;
 
 		const options = [
+			{ id: 'hide', name: 'Hide' },
 			{ id: 'moveUp', name: 'Move Up', disabled: subGroupIndex === 0 },
 			{ id: 'moveDown', name: 'Move Down', disabled: subGroupIndex === subGroupCount - 1 },
 		];
@@ -134,7 +135,9 @@ const Swimlane = observer(class Swimlane extends React.Component<Props, State> {
 				noFilter: true,
 				noVirtualisation: true,
 				onSelect: (e: any, item: any) => {
-					if (item.id === 'moveUp') {
+					if (item.id === 'hide') {
+						this.hideSwimlane();
+					} else if (item.id === 'moveUp') {
 						this.moveSubGroup(view.id, subGroupIndex, subGroupIndex - 1);
 					} else if (item.id === 'moveDown') {
 						this.moveSubGroup(view.id, subGroupIndex, subGroupIndex + 1);
@@ -177,6 +180,30 @@ const Swimlane = observer(class Swimlane extends React.Component<Props, State> {
 
 		// Save the new order
 		Storage.setViewSubGroupOrder(viewId, orderedIds);
+	};
+
+	hideSwimlane () {
+		const { rootId, block, subGroupId, getView } = this.props;
+		const view = getView();
+
+		// Get hidden IDs from storage
+		const hiddenIds = Storage.getViewSubGroupHidden(view.id);
+
+		// Add this sub-group ID to the hidden list if not already there
+		if (!hiddenIds.includes(subGroupId)) {
+			hiddenIds.push(subGroupId);
+			Storage.setViewSubGroupHidden(view.id, hiddenIds);
+
+			// Update the store so the board re-renders
+			const subGroups = S.Record.getGroups(rootId, block.id + '-subgroups') || [];
+			const items = subGroups.map((it: any) => {
+				if (it.id === subGroupId) {
+					return { ...it, isHidden: true };
+				};
+				return it;
+			});
+			S.Record.groupsSet(rootId, block.id + '-subgroups', items);
+		};
 	};
 
 	getCount (): number {

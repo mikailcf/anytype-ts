@@ -49,7 +49,10 @@ const PageAuthLogin = observer(forwardRef<{}, I.PageComponent>((props, ref: any)
 				S.Auth.accountListClear();
 				U.Data.createSession(phrase, '', '', () => {
 					C.AccountRecover(message => {
-						setErrorHandler(message.error.code, message.error.description);
+						if (setErrorHandler(message.error.code, message.error.description)) {
+							return;
+						};
+						// AccountShow event will be received via stream, triggering select() in useEffect
 					});
 				});
 			});
@@ -69,8 +72,19 @@ const PageAuthLogin = observer(forwardRef<{}, I.PageComponent>((props, ref: any)
 		S.Auth.accountSet(account);
 		Renderer.send('keytarSet', account.id, getPhrase());
 
+		// Set a timeout to handle hanging AccountSelect
+		// In offline mode, deriving tech space can take time
+		const selectTimeout = window.setTimeout(() => {
+			submitRef.current?.setLoading(false);
+			// Show specific message for timeout in offline mode
+			setError('Account loading timed out. The app may need to rebuild local data. Try restarting the app.');
+			isSelecting.current = false;
+		}, 180000); // 180 second (3 minute) timeout for offline mode
+
 		// Offline-only mode: always use Local network mode
 		C.AccountSelect(account.id, S.Common.dataPath, I.NetworkMode.Local, '', (message: any) => {
+			window.clearTimeout(selectTimeout);
+
 			if (setErrorHandler(message.error.code, message.error.description) || !message.account) {
 				isSelecting.current = false;
 				return;
@@ -111,6 +125,16 @@ const PageAuthLogin = observer(forwardRef<{}, I.PageComponent>((props, ref: any)
 		if (code == J.Error.Code.FAILED_TO_FIND_ACCOUNT_INFO) {
 			U.Router.go('/auth/setup/select', {});
 			return;
+		};
+
+		if (code == J.Error.Code.ACCOUNT_LOAD_IS_CANCELED) {
+			// Account loading was canceled (timeout or context canceled)
+			// Show error and allow retry
+			setError('Account loading timed out. The app may need to rebuild local data. Try restarting the app.');
+			phraseRef.current?.setError(true);
+			submitRef.current?.setLoading(false);
+			S.Auth.accountListClear();
+			return true;
 		};
 
 		if (code == J.Error.Code.ACCOUNT_STORE_NOT_MIGRATED) {

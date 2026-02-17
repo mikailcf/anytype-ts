@@ -343,10 +343,6 @@
 				"to": "node_modules/brace-expansion"
 			},
 			{
-				"from": "node_modules/builder-util-runtime",
-				"to": "node_modules/builder-util-runtime"
-			},
-			{
 				"from": "node_modules/check-disk-space",
 				"to": "node_modules/check-disk-space"
 			},
@@ -399,10 +395,6 @@
 				"to": "node_modules/electron-store"
 			},
 			{
-				"from": "node_modules/electron-updater",
-				"to": "node_modules/electron-updater"
-			},
-			{
 				"from": "node_modules/electron-util",
 				"to": "node_modules/electron-util"
 			},
@@ -437,10 +429,6 @@
 			{
 				"from": "node_modules/find-up",
 				"to": "node_modules/find-up"
-			},
-			{
-				"from": "node_modules/fs-extra",
-				"to": "node_modules/fs-extra"
 			},
 			{
 				"from": "node_modules/fs.realpath",
@@ -499,10 +487,6 @@
 				"to": "node_modules/isexe"
 			},
 			{
-				"from": "node_modules/js-yaml",
-				"to": "node_modules/js-yaml"
-			},
-			{
 				"from": "node_modules/json-schema-traverse",
 				"to": "node_modules/json-schema-traverse"
 			},
@@ -517,10 +501,6 @@
 			{
 				"from": "node_modules/keytar",
 				"to": "node_modules/keytar"
-			},
-			{
-				"from": "node_modules/lazy-val",
-				"to": "node_modules/lazy-val"
 			},
 			{
 				"from": "node_modules/lie",
@@ -541,14 +521,6 @@
 			{
 				"from": "node_modules/lodash",
 				"to": "node_modules/lodash"
-			},
-			{
-				"from": "node_modules/lodash.escaperegexp",
-				"to": "node_modules/lodash.escaperegexp"
-			},
-			{
-				"from": "node_modules/lodash.isequal",
-				"to": "node_modules/lodash.isequal"
 			},
 			{
 				"from": "node_modules/lru-cache",
@@ -667,10 +639,6 @@
 				"to": "node_modules/sanitize-filename"
 			},
 			{
-				"from": "node_modules/sax",
-				"to": "node_modules/sax"
-			},
-			{
 				"from": "node_modules/semver",
 				"to": "node_modules/semver"
 			},
@@ -717,10 +685,6 @@
 			{
 				"from": "node_modules/truncate-utf8-bytes",
 				"to": "node_modules/truncate-utf8-bytes"
-			},
-			{
-				"from": "node_modules/universalify",
-				"to": "node_modules/universalify"
 			},
 			{
 				"from": "node_modules/unused-filename",

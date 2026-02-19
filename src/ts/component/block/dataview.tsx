@@ -941,7 +941,7 @@ const BlockDataview = observer(class BlockDataview extends React.Component<Props
 		return true;
 	};
 
-	onCellClick (e: any, relationKey: string, recordId: string, record?: any) {
+	onCellClick (e: any, relationKey: string, recordId: string, groupId?: string, subGroupId?: string, record?: any) {
 		if (e.button) {
 			return;
 		};
@@ -952,7 +952,8 @@ const BlockDataview = observer(class BlockDataview extends React.Component<Props
 
 		const selection = S.Common.getRef('selectionProvider');
 		const relation = S.Record.getRelationByKey(relationKey);
-		const id = Relation.cellId(this.getIdPrefix(), relationKey, record.id);
+		const idPrefix = [ this.getIdPrefix(), groupId, subGroupId ].filter(Boolean).join('-');
+		const id = Relation.cellId(idPrefix, relationKey, record.id);
 		const ref = this.refCells.get(id);
 		const view = this.getView();
 		const isRecordEditing = (this.editingRecordId == recordId);
@@ -963,11 +964,6 @@ const BlockDataview = observer(class BlockDataview extends React.Component<Props
 
 		if (relationKey == 'name' && (relation.isReadonlyValue || record.isReadonly)) {
 			U.Object.openConfig(record);
-			return;
-		};
-
-		if (!view.isGrid() && Relation.isUrl(relation.format) && !isRecordEditing) {
-			Action.openUrl(Relation.checkUrlScheme(relation.format, record[relationKey]));
 			return;
 		};
 

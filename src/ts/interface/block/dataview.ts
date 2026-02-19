@@ -178,7 +178,7 @@ export interface ViewComponent {
 	onSortAdd?: (item: any, callBack?: () => void) => void;
 	onFilterAdd?: (item: any, callBack?: () => void) => void;
 	onTemplateMenu?: (e: any, dur: number) => void;
-	onCellClick?(e: any, key: string, id?: string, record?: any): void;
+	onCellClick?(e: any, key: string, id?: string, groupId?: string, subGroupId?: string, record?: any): void;
 	onContext?(e: any, id: string, subId?: string): void;
 	onCellChange?: (id: string, key: string, value: any, callBack?: (message: any) => void) => void;
 	onDragRecordStart?: (e: any, id?: string) => void;

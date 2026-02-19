@@ -243,38 +243,23 @@ const Cell = observer(forwardRef<I.CellRef, Props>((props, ref) => {
 			};
 					
 			case I.RelationType.Object: {
-				if (!noInplace) {
-					param = Object.assign(param, {
-						width,
-						commonFilter: true,
-					});
-				};
-
 				param.data = Object.assign(param.data, {
 					canAdd: true,
 					filter: '',
 					value: Relation.getArrayValue(record[relationKey]),
 					types: relation.objectTypes,
 					maxCount: relation.maxCount,
-					noFilter: !noInplace,
+					noFilter: false,
 				});
 
-				menuId = 'dataviewObjectList';
+				menuId = 'dataviewObjectValues';
+				param.subIds = [ 'dataviewObjectList' ];
 
-				if (noInplace) {
-					menuId = 'dataviewObjectValues';
-					param.subIds = [ 'dataviewObjectList' ];
-				};
-				
 				closeIfOpen = false;
 				break;
 			};
 
 			case I.RelationType.Number: {
-				if (!noInplace) {
-					break;
-				};
-
 				param = Object.assign(param, {
 					width: 288,
 				});

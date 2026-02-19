@@ -6,6 +6,7 @@ import { Cell, SelectionTarget, ObjectCover, Icon } from 'Component';
 interface Props extends I.ViewComponent {
 	id: string;
 	groupId: string;
+	subGroupId?: string;
 	onDragStartCard?: (e: any, groupId: any, record: any) => void;
 };
 
@@ -17,14 +18,14 @@ const Card = observer(class Card extends React.Component<Props> {
 
 	render () {
 		const {
-			rootId, block, groupId, id, isPopup, getView, onContext, onRefCell, getIdPrefix, isInline,
+			rootId, block, groupId, subGroupId, id, isPopup, getView, onContext, onRefCell, getIdPrefix, isInline,
 			getVisibleRelations, getCoverObject, onEditModeClick, canCellEdit
 		} = this.props;
 		const { config } = S.Common;
 		const view = getView();
 		const { coverFit, hideIcon } = view;
 		const relations = getVisibleRelations();
-		const idPrefix = getIdPrefix();
+		const idPrefix = [ getIdPrefix(), groupId, subGroupId ].filter(Boolean).join('-');
 		const subId = S.Record.getGroupSubId(rootId, block.id, groupId);
 		const record = S.Detail.get(subId, id, relations.map(it => it.relationKey));
 		const cn = [ 'card', U.Data.layoutClass(record.id, record.layout) ];
@@ -70,7 +71,6 @@ const Card = observer(class Card extends React.Component<Props> {
 								iconSize={iconSize}
 								size={iconSize}
 								withName={true}
-								noInplace={!isName}
 								editModeOn={this.isEditing}
 							/>
 						);
@@ -148,7 +148,7 @@ const Card = observer(class Card extends React.Component<Props> {
 	};
 
 	onCellClick (e: React.MouseEvent, vr: I.ViewRelation) {
-		const { id, rootId, block, groupId, onCellClick } = this.props;
+		const { id, rootId, block, groupId, subGroupId, onCellClick } = this.props;
 		const subId = S.Record.getGroupSubId(rootId, block.id, groupId);
 		const record = S.Detail.get(subId, id);
 		const relation = S.Record.getRelationByKey(vr.relationKey);
@@ -160,7 +160,7 @@ const Card = observer(class Card extends React.Component<Props> {
 		e.preventDefault();
 		e.stopPropagation();
 
-		onCellClick(e, relation.relationKey, record.id, record);
+		onCellClick(e, relation.relationKey, record.id, groupId, subGroupId, record);
 	};
 
 	onDragStartCard = (e: any) => {

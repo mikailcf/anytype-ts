@@ -35,7 +35,7 @@ const Column = observer(class Column extends React.Component<Props> {
 	};
 
 	render () {
-		const { rootId, block, id, getSubId, getView, getLimit, value, onDragStartColumn, getTarget, onRefRecord } = this.props;
+		const { rootId, block, id, subGroupId, getSubId, getView, getLimit, value, onDragStartColumn, getTarget, onRefRecord } = this.props;
 		const view = getView();
 		const { coverRelationKey, hideIcon } = view;
 		const target = getTarget();
@@ -112,6 +112,7 @@ const Column = observer(class Column extends React.Component<Props> {
 								{...this.props}
 								id={item.id}
 								groupId={id}
+								subGroupId={subGroupId}
 								getRecord={() => item}
 								getCoverObject={this.getCoverObject}
 								recordIdx={i}

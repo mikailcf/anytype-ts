@@ -1,6 +1,9 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
 import { arrayMove } from '@dnd-kit/sortable';
+import { DndContext, closestCenter } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 import $ from 'jquery';
 import raf from 'raf';
 import { I, C, S, U, J, Dataview, keyboard, translate, Relation, Storage } from 'Lib';
@@ -39,6 +42,8 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 		this.onDragStartColumn = this.onDragStartColumn.bind(this);
 		this.onDragStartCard = this.onDragStartCard.bind(this);
 		this.getSubIdWithSubGroup = this.getSubIdWithSubGroup.bind(this);
+		this.onDragStartSwimlane = this.onDragStartSwimlane.bind(this);
+		this.onDragEndSwimlane = this.onDragEndSwimlane.bind(this);
 	};
 
 	render () {
@@ -81,24 +86,36 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 				<div id="scroll" className="scroll">
 					<div className={cn.join(' ')}>
 						{hasSubGroups ? (
-							<div id="swimlanes" className="swimlanes">
-								{visibleSubGroups.map((subGroup: any, i: number) => (
-									<Swimlane
-										key={`board-swimlane-${subGroup.id}`}
-										{...this.props}
-										subGroupId={subGroup.id}
-										subGroupValue={subGroup.value}
-										subGroupIndex={i}
-										subGroupCount={visibleSubGroups.length}
-										groups={groups}
-										columnRefs={this.columnRefs}
-										onDragStartColumn={this.onDragStartColumn}
-										onDragStartCard={this.onDragStartCard}
-										onSubGroupOrderChange={() => this.forceUpdate()}
-										getSubIdForSwimlane={this.getSubIdWithSubGroup}
-									/>
-								))}
-							</div>
+							<DndContext
+								collisionDetection={closestCenter}
+								onDragStart={this.onDragStartSwimlane}
+								onDragEnd={this.onDragEndSwimlane}
+								modifiers={[restrictToVerticalAxis, restrictToFirstScrollableAncestor]}
+							>
+								<SortableContext
+									items={visibleSubGroups.map((sg: any) => sg.id)}
+									strategy={verticalListSortingStrategy}
+								>
+									<div id="swimlanes" className="swimlanes">
+										{visibleSubGroups.map((subGroup: any, i: number) => (
+											<Swimlane
+												key={`board-swimlane-${subGroup.id}`}
+												{...this.props}
+												subGroupId={subGroup.id}
+												subGroupValue={subGroup.value}
+												subGroupIndex={i}
+												subGroupCount={visibleSubGroups.length}
+												groups={groups}
+												columnRefs={this.columnRefs}
+												onDragStartColumn={this.onDragStartColumn}
+												onDragStartCard={this.onDragStartCard}
+												onSubGroupOrderChange={() => this.forceUpdate()}
+												getSubIdForSwimlane={this.getSubIdWithSubGroup}
+											/>
+										))}
+									</div>
+								</SortableContext>
+							</DndContext>
 						) : (
 							<div id="columns" className="columns">
 								{groups.map((group: any, i: number) => (
@@ -659,6 +676,35 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 			if (idxB !== undefined) return 1;
 			return 0;
 		});
+	};
+
+	onDragStartSwimlane () {
+		keyboard.disableSelection(true);
+	};
+
+	onDragEndSwimlane (result: any) {
+		keyboard.disableSelection(false);
+
+		const { active, over } = result;
+		if (!active || !over || active.id === over.id) {
+			return;
+		};
+
+		const { rootId, block, getView } = this.props;
+		const view = getView();
+		const subGroups = S.Record.getGroups(rootId, block.id + '-subgroups') || [];
+		const visibleSubGroups = subGroups.filter((it: any) => !it.isHidden);
+		const orderedSubGroups = this.applySubGroupOrder(view.id, visibleSubGroups);
+
+		const ids = orderedSubGroups.map((it: any) => it.id);
+		const oldIndex = ids.indexOf(active.id);
+		const newIndex = ids.indexOf(over.id);
+
+		if (oldIndex !== -1 && newIndex !== -1) {
+			const newOrder = arrayMove(ids, oldIndex, newIndex);
+			Storage.setViewSubGroupOrder(view.id, newOrder);
+			this.forceUpdate();
+		};
 	};
 
 	resize () {

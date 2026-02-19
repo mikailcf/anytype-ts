@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { I, S, translate, Storage } from 'Lib';
 import { Icon, Cell } from 'Component';
 import Column from './column';
@@ -15,13 +17,14 @@ interface Props extends I.ViewComponent {
 	onDragStartCard: (e: any, groupId: string, record: any) => void;
 	onSubGroupOrderChange: () => void;
 	getSubIdForSwimlane: (groupId: string, subGroupId: string) => string;
+	dragHandleProps?: any;
 };
 
 interface State {
 	isCollapsed: boolean;
 };
 
-const Swimlane = observer(class Swimlane extends React.Component<Props, State> {
+const SwimlaneClass = observer(class SwimlaneClass extends React.Component<Props, State> {
 
 	node: any = null;
 
@@ -36,7 +39,7 @@ const Swimlane = observer(class Swimlane extends React.Component<Props, State> {
 	};
 
 	render () {
-		const { rootId, block, subGroupId, subGroupValue, groups, getView, onDragStartColumn, onDragStartCard, columnRefs, getSubIdForSwimlane } = this.props;
+		const { rootId, block, subGroupId, subGroupValue, groups, getView, onDragStartColumn, onDragStartCard, columnRefs, getSubIdForSwimlane, dragHandleProps, readonly } = this.props;
 		const { isCollapsed } = this.state;
 		const view = getView();
 		const cn = [ 'swimlane' ];
@@ -58,6 +61,9 @@ const Swimlane = observer(class Swimlane extends React.Component<Props, State> {
 				<div className="swimlaneHead" onClick={this.onToggle}>
 					<div className="sides">
 						<div className="side left">
+							{dragHandleProps && !readonly ? (
+								<div className="icon dnd" {...dragHandleProps} />
+							) : null}
 							<Icon className={`arrow ${isCollapsed ? '' : 'expanded'}`} />
 							<Cell
 								id={`swimlane-head-${subGroupId}`}
@@ -221,4 +227,33 @@ const Swimlane = observer(class Swimlane extends React.Component<Props, State> {
 
 });
 
-export default Swimlane;
+const SortableSwimlane = observer((props: Props) => {
+	const { subGroupId, readonly } = props;
+	const disabled = readonly;
+
+	const {
+		attributes,
+		listeners,
+		setNodeRef,
+		transform,
+		transition,
+		isDragging,
+	} = useSortable({ id: subGroupId, disabled });
+
+	const style: React.CSSProperties = {
+		transform: CSS.Transform.toString(transform),
+		transition,
+		opacity: isDragging ? 0.5 : 1,
+	};
+
+	return (
+		<div ref={setNodeRef} style={style} {...attributes}>
+			<SwimlaneClass
+				{...props}
+				dragHandleProps={disabled ? undefined : listeners}
+			/>
+		</div>
+	);
+});
+
+export default SortableSwimlane;

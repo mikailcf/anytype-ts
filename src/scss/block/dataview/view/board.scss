@@ -29,6 +29,16 @@
 					}
 					.icon.arrow.expanded { transform: rotate(0deg); }
 
+					.icon.dnd {
+						width: 20px; height: 20px; background-image: url('~img/icon/dnd.svg');
+						background-size: 20px; cursor: grab; opacity: 0; flex-shrink: 0;
+						transition: opacity $transitionCommon;
+						position: relative; right: auto; top: auto; border: none;
+						background-color: transparent;
+					}
+					.icon.dnd:active { cursor: grabbing; }
+					.icon.dnd:hover { background-color: transparent; border-color: transparent; }
+
 					.cellContent { display: inline-flex; align-items: center; font-weight: 500; color: var(--color-text-primary); }
 					.cellContent {
 						.empty { color: var(--color-text-secondary); font-weight: 400; }
@@ -43,6 +53,7 @@
 				}
 				.swimlaneHead:hover { background: var(--color-shape-highlight-light); }
 				&:hover .swimlaneHead .icon.more { opacity: 1; }
+				&:hover .swimlaneHead .icon.dnd { opacity: 1; }
 
 				.swimlaneBody { padding: 8px 8px 16px 8px; overflow-x: auto; }
 				.swimlaneBody {

@@ -13,7 +13,7 @@ run:
 
 .PHONY: run-local
 run-local:
-	unset ELECTRON_RUN_AS_NODE && SERVER_PORT=8080 ANYTYPE_USE_SIDE_SERVER=http://127.0.0.1:31008 ANYPROF=:8082 npm run start:dev-debug
+	unset ELECTRON_RUN_AS_NODE && SERVER_PORT=8080 ANYTYPE_USE_SIDE_SERVER=http://127.0.0.1:31008 ANYPROF=:8082 npm run start:dev-debug 2>&1 | tee server.log
 
 .PHONY: run2
 run2:
@@ -31,3 +31,11 @@ lint:
 update-middleware:
 	./update.sh macos-latest arm64
 	cp darwin-arm64/anytypeHelper dist/anytypeHelper
+
+.PHONY: build-local
+build-local:
+	npm install
+	cd /Users/mika/dev/open-source/anytype-heart && CLIENT_DESKTOP_PATH=/Users/mika/dev/open-source/anytype-ts make install-dev-js
+	rm -rf darwin-arm darwin-amd
+	npm run update:locale
+	ELECTRON_SKIP_NOTARIZE=1 ELECTRON_SKIP_SENTRY=1 npm run dist:macarm

@@ -139,7 +139,9 @@ The app runs in Electron and requires the anytype-heart middleware. To test UI c
 
 ### CDP Helper Scripts
 
-Two reusable scripts in `.playwright-mcp/` handle CDP communication:
+Reusable scripts in `.playwright-mcp/` handle CDP communication for executing some actions. After making changes to the UI, always test it before considering it done. To test, determine which actions are needed to verify the task and if they're not covered by a helper script, create one for that.
+
+Current scripts are:
 
 **Evaluate JavaScript in Electron:**
 ```
@@ -153,6 +155,20 @@ node .playwright-mcp/screenshot.js [output.png]
 ```
 Saves a PNG screenshot of the Electron window (default: `/tmp/anytype-screenshot.png`).
 
+**Simulate drag and drop:**
+```
+node .playwright-mcp/drag.js <sourceSelector> <targetSelector> [options]
+```
+Simulates drag and drop between two elements. Options:
+- `--type=native` - Use CDP Input domain for native mouse simulation (most reliable, use for Anytype blocks)
+- `--type=html5` - Use HTML5 Drag and Drop API
+- `--type=mouse` - Use synthetic mouse events (mousedown/mousemove/mouseup)
+- `--delay=N` - Milliseconds between events (default: 50)
+- `--offset=X,Y` - Offset from center of source element
+- `--steps=N` - Number of intermediate steps for native drag (default: 10)
+
+For Anytype block reordering, use `--type=native` and target the drag handles (`.icon.dnd` elements inside `.wrapMenu`). Hover over a block to reveal the handle. To place item X below item Y, drag X's handle to the item *after* Y.
+
 **Examples:**
 ```bash
 # Get page text
@@ -163,6 +179,9 @@ node .playwright-mcp/screenshot.js /tmp/check.png
 
 # Click a button
 node .playwright-mcp/cdp.js 'document.querySelector(".button.accent").click(); "clicked"'
+
+# Reorder Anytype blocks (native drag)
+node .playwright-mcp/drag.js '.icon.dnd.source-handle' '.icon.dnd.target-handle' --type=native --delay=200 --steps=25
 ```
 
 ### First Launch: InitialSetParameters
@@ -205,3 +224,4 @@ Action.openSettings("dataIndex", "settings"); "navigated"
 - The app cannot render in a regular browser — it requires Electron's IPC bridge. Always connect via CDP, not `http://localhost:8080` directly.
 - `--remote-debugging-port` must reach the `npx electron .` process directly. npm doesn't forward args through `npm-run-all`, which is why `start:dev-debug` exists as a separate script chain.
 - Typecheck errors in `dist/lib/pkg/` and `node_modules/` are pre-existing and unrelated to source changes.
+- The `make run-local` command also pipes the server output to the file server.log

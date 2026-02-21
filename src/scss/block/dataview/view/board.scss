@@ -7,7 +7,7 @@
 
 			/* Swimlanes (sub-group vertical sections) */
 			.swimlanes { display: flex; flex-direction: column; gap: 16px 0px; margin-right: 80px; }
-			.swimlane { border-radius: 8px; background: var(--color-bg-secondary); }
+			.swimlane { border-radius: 8px; }
 			.swimlane {
 				.swimlaneHead {
 					padding: 12px 16px; cursor: pointer; display: flex; align-items: center; border-radius: 8px 8px 0px 0px;

@@ -62,7 +62,15 @@ const SwimlaneClass = observer(class SwimlaneClass extends React.Component<Props
 					<div className="sides">
 						<div className="side left">
 							{dragHandleProps && !readonly ? (
-								<div className="icon dnd" {...dragHandleProps} />
+								<div
+									id={`swimlane-${subGroupId}-dnd`}
+									className="icon dnd"
+									{...dragHandleProps}
+									onClick={(e) => {
+										e.stopPropagation();
+										this.onMore(e, `#swimlane-${subGroupId}-dnd`, I.MenuDirection.Left);
+									}}
+								/>
 							) : null}
 							<Icon className={`arrow ${isCollapsed ? '' : 'expanded'}`} />
 							<Cell
@@ -118,13 +126,14 @@ const SwimlaneClass = observer(class SwimlaneClass extends React.Component<Props
 		this.setState({ isCollapsed: !this.state.isCollapsed });
 	};
 
-	onMore (e: any) {
+	onMore (e: any, element?: string, horizontal?: I.MenuDirection) {
 		e.preventDefault();
 		e.stopPropagation();
 
 		const { rootId, block, subGroupId, subGroupIndex, subGroupCount, getView, onSubGroupOrderChange } = this.props;
 		const view = getView();
-		const element = `#swimlane-${subGroupId}-more`;
+		const menuElement = element || `#swimlane-${subGroupId}-more`;
+		const menuHorizontal = horizontal || I.MenuDirection.Center;
 
 		const options = [
 			{ id: 'hide', name: 'Hide' },
@@ -133,8 +142,8 @@ const SwimlaneClass = observer(class SwimlaneClass extends React.Component<Props
 		];
 
 		S.Menu.open('select', {
-			element,
-			horizontal: I.MenuDirection.Center,
+			element: menuElement,
+			horizontal: menuHorizontal,
 			offsetY: 4,
 			data: {
 				options,

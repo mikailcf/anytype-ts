@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
 import { arrayMove } from '@dnd-kit/sortable';
-import { DndContext, closestCenter } from '@dnd-kit/core';
+import { DndContext, closestCenter, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 import $ from 'jquery';
@@ -12,6 +12,34 @@ import Column from './board/column';
 import Swimlane from './board/swimlane';
 
 const PADDING = 46;
+
+interface SwimlaneDndContextProps {
+	children: React.ReactNode;
+	onDragStart: () => void;
+	onDragEnd: (result: any) => void;
+};
+
+const SwimlaneDndContext: React.FC<SwimlaneDndContextProps> = ({ children, onDragStart, onDragEnd }) => {
+	const sensors = useSensors(
+		useSensor(PointerSensor, {
+			activationConstraint: {
+				distance: 5,
+			},
+		})
+	);
+
+	return (
+		<DndContext
+			sensors={sensors}
+			collisionDetection={closestCenter}
+			onDragStart={onDragStart}
+			onDragEnd={onDragEnd}
+			modifiers={[restrictToVerticalAxis, restrictToFirstScrollableAncestor]}
+		>
+			{children}
+		</DndContext>
+	);
+};
 
 interface State {
 	subGroups: any[];
@@ -86,11 +114,9 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 				<div id="scroll" className="scroll">
 					<div className={cn.join(' ')}>
 						{hasSubGroups ? (
-							<DndContext
-								collisionDetection={closestCenter}
+							<SwimlaneDndContext
 								onDragStart={this.onDragStartSwimlane}
 								onDragEnd={this.onDragEndSwimlane}
-								modifiers={[restrictToVerticalAxis, restrictToFirstScrollableAncestor]}
 							>
 								<SortableContext
 									items={visibleSubGroups.map((sg: any) => sg.id)}
@@ -115,7 +141,7 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 										))}
 									</div>
 								</SortableContext>
-							</DndContext>
+							</SwimlaneDndContext>
 						) : (
 							<div id="columns" className="columns">
 								{groups.map((group: any, i: number) => (

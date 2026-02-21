@@ -124,7 +124,7 @@ const Column = observer(class Column extends React.Component<Props> {
 						): ''}
 
 						{isAllowedObject ? (
-							<div id={`record-${id}-add`} className="card add" onClick={e => this.onAdd(e, 1)}>
+							<div id={`record-${subGroupId ? `${subGroupId}-${id}` : id}-add`} className="card add" onClick={e => this.onAdd(e, 1)}>
 								<Icon className="plus" />
 							</div>
 						) : ''}

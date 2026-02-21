@@ -302,54 +302,107 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 	};
 
 	initCacheCard () {
+		const { rootId, block, getView } = this.props;
+		const view = getView();
 		const groups = this.getGroups(false);
 		const node = $(this.node);
+		const hasSubGroups = view.subGroupRelationKey && S.Record.getGroups(rootId, block.id + '-subgroups')?.some((it: any) => !it.isHidden);
 
 		this.cache = {};
 
-		groups.forEach((group: any, i: number) => {
-			const column = this.columnRefs[group.id];
-			if (!column) {
-				return;
-			};
+		if (hasSubGroups) {
+			// Swimlane mode: iterate through sub-groups and groups with composite keys
+			const subGroups = S.Record.getGroups(rootId, block.id + '-subgroups').filter((it: any) => !it.isHidden);
+			subGroups.forEach((subGroup: any) => {
+				groups.forEach((group: any) => {
+					const columnKey = `${subGroup.id}-${group.id}`;
+					const column = this.columnRefs[columnKey];
+					if (!column) {
+						return;
+					};
 
-			const items = column.getItems() || [];
+					const items = column.getItems() || [];
+					items.push({ id: `${columnKey}-add`, isAdd: true });
+					items.forEach((item: any, i: number) => {
+						const el = node.find(`#record-${item.id}`);
+						if (!el.length) {
+							return;
+						};
 
-			items.push({ id: `${group.id}-add`, isAdd: true });
-			items.forEach((item: any, i: number) => {
-				const el = node.find(`#record-${item.id}`);
-				if (!el.length) {
+						const { left, top } = el.offset();
+						this.cache[item.id] = {
+							id: item.id,
+							groupId: group.id,
+							subGroupId: subGroup.id,
+							x: left,
+							y: top,
+							width: el.outerWidth(),
+							height: el.outerHeight(),
+							index: i,
+							isAdd: item.isAdd,
+						};
+					});
+				});
+			});
+		} else {
+			// Non-swimlane mode: original logic
+			groups.forEach((group: any, i: number) => {
+				const column = this.columnRefs[group.id];
+				if (!column) {
 					return;
 				};
 
-				const { left, top } = el.offset();
-				this.cache[item.id] = {
-					id: item.id,
-					groupId: group.id,
-					x: left,
-					y: top,
-					width: el.outerWidth(),
-					height: el.outerHeight(),
-					index: i,
-					isAdd: item.isAdd,
-				};
+				const items = column.getItems() || [];
+
+				items.push({ id: `${group.id}-add`, isAdd: true });
+				items.forEach((item: any, i: number) => {
+					const el = node.find(`#record-${item.id}`);
+					if (!el.length) {
+						return;
+					};
+
+					const { left, top } = el.offset();
+					this.cache[item.id] = {
+						id: item.id,
+						groupId: group.id,
+						x: left,
+						y: top,
+						width: el.outerWidth(),
+						height: el.outerHeight(),
+						index: i,
+						isAdd: item.isAdd,
+					};
+				});
 			});
-		});
+		};
 	};
 
 	onDragStartCommon (e: any, target: any) {
 		e.stopPropagation();
 
+		const { rootId, block, getView } = this.props;
+		const view = getView();
 		const selection = S.Common.getRef('selectionProvider');
 		const node = $(this.node);
-		const view = node.find('.viewContent');
+		const viewContent = node.find('.viewContent');
 		const clone = target.clone();
-		
-		this.ox = node.find('#columns').offset().left;
+
+		// Determine offset based on whether we're in swimlane mode
+		const hasSubGroups = view.subGroupRelationKey && S.Record.getGroups(rootId, block.id + '-subgroups')?.some((it: any) => !it.isHidden);
+
+		if (hasSubGroups) {
+			// In swimlane mode, columns are nested inside swimlanes with class "columns"
+			const firstSwimlaneColumns = node.find('.swimlane .columns').first();
+			this.ox = firstSwimlaneColumns.length ? firstSwimlaneColumns.offset().left : 0;
+		} else {
+			// In regular mode, columns are directly under #columns
+			const columnsEl = node.find('#columns');
+			this.ox = columnsEl.length ? columnsEl.offset().left : 0;
+		};
 
 		target.addClass('isDragging');
 		clone.attr({ id: '' }).addClass('isClone').css({ zIndex: 10000, position: 'fixed', left: -10000, top: -10000 });
-		view.append(clone);
+		viewContent.append(clone);
 
 		$(document).off('dragover').on('dragover', e => e.preventDefault());
 		$(window).off('dragend.board drag.board');
@@ -522,6 +575,7 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 
 				this.hoverId = rect.id;
 				this.newGroupId = rect.groupId;
+				this.newSubGroupId = rect.subGroupId || '';
 				this.newIndex = isTop ? rect.index : rect.index + 1;
 				break;
 			};
@@ -544,13 +598,13 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 	onDragEndCard (e: any, record: any) {
 		const current = this.cache[record.id];
 
-		if (!current) {
-			return;
-		};
-
 		this.onDragEndCommon(e);
 		this.cache = {};
 		this.isDraggingCard = false;
+
+		if (!current) {
+			return;
+		};
 
 		if (!this.hoverId || !current.groupId || !this.newGroupId || ((current.index == this.newIndex) && (current.groupId == this.newGroupId))) {
 			return;
@@ -558,10 +612,21 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 
 		const { rootId, block, getView, objectOrderUpdate } = this.props;
 		const view = getView();
-		const oldSubId = S.Record.getGroupSubId(rootId, block.id, current.groupId);
-		const newSubId = S.Record.getGroupSubId(rootId, block.id, this.newGroupId);
+		const hasSubGroups = view.subGroupRelationKey && S.Record.getGroups(rootId, block.id + '-subgroups')?.some((it: any) => !it.isHidden);
+
+		// Build subscription IDs - use composite key for swimlanes
+		const currentSubGroupId = current.subGroupId || '';
+		const oldGroupKey = hasSubGroups ? `${current.groupId}-${currentSubGroupId}` : current.groupId;
+		const newGroupKey = hasSubGroups ? `${this.newGroupId}-${this.newSubGroupId}` : this.newGroupId;
+		const oldSubId = S.Record.getGroupSubId(rootId, block.id, oldGroupKey);
+		const newSubId = S.Record.getGroupSubId(rootId, block.id, newGroupKey);
+
 		const newGroup = S.Record.getGroup(rootId, block.id, this.newGroupId);
-		const change = current.groupId != this.newGroupId;
+		const newSubGroup = hasSubGroups ? S.Record.getGroups(rootId, block.id + '-subgroups').find((it: any) => it.id === this.newSubGroupId) : null;
+
+		const groupChange = current.groupId != this.newGroupId;
+		const subGroupChange = hasSubGroups && currentSubGroupId && this.newSubGroupId && currentSubGroupId !== this.newSubGroupId;
+		const change = groupChange || subGroupChange;
 
 		let records: any[] = [];
 		let orders: any[] = [];
@@ -573,10 +638,19 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 			S.Record.recordDelete(oldSubId, '', record.id);
 			S.Record.recordAdd(newSubId, '', record.id, this.newIndex);
 
-			C.ObjectListSetDetails([ record.id ], [ { key: view.groupRelationKey, value: newGroup.value } ], () => {
+			// Build details to update
+			const details: { key: string; value: any }[] = [];
+			if (groupChange && newGroup) {
+				details.push({ key: view.groupRelationKey, value: newGroup.value });
+			};
+			if (subGroupChange && newSubGroup) {
+				details.push({ key: view.subGroupRelationKey, value: newSubGroup.value });
+			};
+
+			C.ObjectListSetDetails([ record.id ], details, () => {
 				orders = [
-					{ viewId: view.id, groupId: current.groupId, objectIds: S.Record.getRecordIds(oldSubId, '') },
-					{ viewId: view.id, groupId: this.newGroupId, objectIds: S.Record.getRecordIds(newSubId, '') }
+					{ viewId: view.id, groupId: oldGroupKey, objectIds: S.Record.getRecordIds(oldSubId, '') },
+					{ viewId: view.id, groupId: newGroupKey, objectIds: S.Record.getRecordIds(newSubId, '') }
 				];
 
 				objectOrderUpdate(orders, records);
@@ -591,15 +665,18 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 			};
 
 			records = arrayMove(S.Record.getRecordIds(oldSubId, ''), current.index, this.newIndex);
-			orders = [ { viewId: view.id, groupId: current.groupId, objectIds: records } ];
+			orders = [ { viewId: view.id, groupId: oldGroupKey, objectIds: records } ];
 
 			objectOrderUpdate(orders, records, () => S.Record.recordsSet(oldSubId, '', records));
 		};
 	};
 
 	onScrollView () {
+		const { rootId, block, getView } = this.props;
+		const view = getView();
 		const groups = this.getGroups(false);
 		const node = $(this.node);
+		const hasSubGroups = view.subGroupRelationKey && S.Record.getGroups(rootId, block.id + '-subgroups')?.some((it: any) => !it.isHidden);
 
 		if (this.isDraggingColumn) {
 			groups.forEach((group: any, i: number) => {
@@ -619,24 +696,74 @@ const ViewBoard = observer(class ViewBoard extends React.Component<I.ViewCompone
 			});
 		} else
 		if (this.isDraggingCard) {
-			groups.forEach((group: any, i: number) => {
-				const column = this.columnRefs[group.id];
-				if (!column) {
-					return;
-				};
+			if (hasSubGroups) {
+				// Swimlane mode: iterate through sub-groups and groups with composite keys
+				const subGroups = S.Record.getGroups(rootId, block.id + '-subgroups').filter((it: any) => !it.isHidden);
+				subGroups.forEach((subGroup: any) => {
+					groups.forEach((group: any) => {
+						const columnKey = `${subGroup.id}-${group.id}`;
+						const column = this.columnRefs[columnKey];
+						if (!column) {
+							return;
+						};
 
-				const items = column.getItems();
-				items.forEach((item: any, i: number) => {
-					const el = node.find(`#record-${item.id}`);
-					if (!el.length) {
+						// Update positions for all cards
+						const items = column.getItems() || [];
+						items.forEach((item: any, i: number) => {
+							const el = node.find(`#record-${item.id}`);
+							if (!el.length) {
+								return;
+							};
+
+							const { left, top } = el.offset();
+							if (this.cache[item.id]) {
+								this.cache[item.id].x = left;
+								this.cache[item.id].y = top;
+							};
+						});
+
+						// Also update the "add" card position
+						const addCardId = `${columnKey}-add`;
+						const addEl = node.find(`#record-${addCardId}`);
+						if (addEl.length && this.cache[addCardId]) {
+							const { left, top } = addEl.offset();
+							this.cache[addCardId].x = left;
+							this.cache[addCardId].y = top;
+						};
+					});
+				});
+			} else {
+				groups.forEach((group: any, i: number) => {
+					const column = this.columnRefs[group.id];
+					if (!column) {
 						return;
 					};
 
-					const { left, top } = el.offset();
-					this.cache[item.id].x = left;
-					this.cache[item.id].y = top;
+					// Update positions for all cards
+					const items = column.getItems() || [];
+					items.forEach((item: any, i: number) => {
+						const el = node.find(`#record-${item.id}`);
+						if (!el.length) {
+							return;
+						};
+
+						const { left, top } = el.offset();
+						if (this.cache[item.id]) {
+							this.cache[item.id].x = left;
+							this.cache[item.id].y = top;
+						};
+					});
+
+					// Also update the "add" card position
+					const addCardId = `${group.id}-add`;
+					const addEl = node.find(`#record-${addCardId}`);
+					if (addEl.length && this.cache[addCardId]) {
+						const { left, top } = addEl.offset();
+						this.cache[addCardId].x = left;
+						this.cache[addCardId].y = top;
+					};
 				});
-			});
+			};
 		};
 	};
 

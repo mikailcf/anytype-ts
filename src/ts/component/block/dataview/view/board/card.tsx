@@ -7,6 +7,7 @@ interface Props extends I.ViewComponent {
 	id: string;
 	groupId: string;
 	subGroupId?: string;
+	getSubId?: () => string;
 	onDragStartCard?: (e: any, groupId: any, record: any) => void;
 };
 
@@ -19,14 +20,14 @@ const Card = observer(class Card extends React.Component<Props> {
 	render () {
 		const {
 			rootId, block, groupId, subGroupId, id, isPopup, getView, onContext, onRefCell, getIdPrefix, isInline,
-			getVisibleRelations, getCoverObject, onEditModeClick, canCellEdit
+			getVisibleRelations, getCoverObject, onEditModeClick, canCellEdit, getSubId
 		} = this.props;
 		const { config } = S.Common;
 		const view = getView();
 		const { coverFit, hideIcon } = view;
 		const relations = getVisibleRelations();
 		const idPrefix = [ getIdPrefix(), groupId, subGroupId ].filter(Boolean).join('-');
-		const subId = S.Record.getGroupSubId(rootId, block.id, groupId);
+		const subId = getSubId ? getSubId() : S.Record.getGroupSubId(rootId, block.id, groupId);
 		const record = S.Detail.get(subId, id, relations.map(it => it.relationKey));
 		const cn = [ 'card', U.Data.layoutClass(record.id, record.layout) ];
 		const { done } = record;
@@ -88,20 +89,20 @@ const Card = observer(class Card extends React.Component<Props> {
 		};
 
 		return (
-			<div 
-				ref={node => this.node = node} 
-				id={`record-${record.id}`}
-				className={cn.join(' ')} 
+			<div
+				ref={node => this.node = node}
+				id={`record-${id}`}
+				className={cn.join(' ')}
 				draggable={true}
 				onDragStart={this.onDragStartCard}
 				onClick={e => this.onClick(e)}
-				onContextMenu={e => onContext(e, record.id, subId)}
-				{...U.Common.dataProps({ id: record.id })}
+				onContextMenu={e => onContext(e, record.id || id, subId)}
+				{...U.Common.dataProps({ id: id })}
 			>
 				{canEdit && config.experimental ? (
 					<Icon
 						className={[ 'editMode', this.isEditing ? 'enabled' : '' ].join(' ')}
-						onClick={e => onEditModeClick(e, record.id)}
+						onClick={e => onEditModeClick(e, record.id || id)}
 					/>
 				) : ''}
 
@@ -126,13 +127,13 @@ const Card = observer(class Card extends React.Component<Props> {
 	onClick (e: any) {
 		e.preventDefault();
 
-		const { rootId, block, groupId, id, onContext } = this.props;
+		const { rootId, block, groupId, id, onContext, getSubId } = this.props;
 		const selection = S.Common.getRef('selectionProvider');
-		const subId = S.Record.getGroupSubId(rootId, block.id, groupId);
+		const subId = getSubId ? getSubId() : S.Record.getGroupSubId(rootId, block.id, groupId);
 		const record = S.Detail.get(subId, id);
 		const cb = {
 			0: () => {
-				keyboard.withCommand(e) ? U.Object.openEvent(e, record) : U.Object.openConfig(record); 
+				keyboard.withCommand(e) ? U.Object.openEvent(e, record) : U.Object.openConfig(record);
 			},
 			2: () => onContext(e, record.id)
 		};
@@ -148,8 +149,8 @@ const Card = observer(class Card extends React.Component<Props> {
 	};
 
 	onCellClick (e: React.MouseEvent, vr: I.ViewRelation) {
-		const { id, rootId, block, groupId, subGroupId, onCellClick } = this.props;
-		const subId = S.Record.getGroupSubId(rootId, block.id, groupId);
+		const { id, rootId, block, groupId, subGroupId, onCellClick, getSubId } = this.props;
+		const subId = getSubId ? getSubId() : S.Record.getGroupSubId(rootId, block.id, groupId);
 		const record = S.Detail.get(subId, id);
 		const relation = S.Record.getRelationByKey(vr.relationKey);
 
@@ -169,13 +170,16 @@ const Card = observer(class Card extends React.Component<Props> {
 			return;
 		};
 
-		const { rootId, block, groupId, id, onDragStartCard, getVisibleRelations } = this.props;
-		const subId = S.Record.getGroupSubId(rootId, block.id, groupId);
+		const { rootId, block, groupId, id, onDragStartCard, getVisibleRelations, getSubId } = this.props;
+		const subId = getSubId ? getSubId() : S.Record.getGroupSubId(rootId, block.id, groupId);
 		const relations = getVisibleRelations();
 		const record = S.Detail.get(subId, id, relations.map(it => it.relationKey));
 
+		// Ensure record has the correct id (use id prop as fallback)
+		const recordWithId = { ...record, id: record.id || id };
+
 		if (onDragStartCard) {
-			onDragStartCard(e, groupId, record);
+			onDragStartCard(e, groupId, recordWithId);
 		};
 	};
 
